@@ -142,7 +142,7 @@ class PawnEnum extends PawnElement
 	
 	protected function ParseFuncEnumLine($line)
 	{
-		$pawnFunction = new PawnFunction($handle);
+		$pawnFunction = new PawnFunction($this->pawnParser);
 
 		$toks = explode('(', $line);
 		

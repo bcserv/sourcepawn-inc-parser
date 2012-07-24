@@ -13,7 +13,10 @@ abstract class PawnElement
 		$this->pawnParser = $pawnParser;
 	}
 	
-	abstract static function IsPawnElement($pawnParser);
+	static function IsPawnElement($pawnParser)
+	{
+		return false;
+	}
 	
 	public function Parse()
 	{

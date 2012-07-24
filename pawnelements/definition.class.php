@@ -17,7 +17,7 @@ class PawnDefinition extends PawnElement
 		$this->name = '';
 
 		$pp->Jump(7);
-		$pp->SkipWhiteSpace($h);
+		$pp->SkipWhiteSpace();
 
 		while (($char = $pp->ReadChar()) !== false) {
 			
@@ -29,12 +29,12 @@ class PawnDefinition extends PawnElement
 			$this->name .= $char;
 		}
 		
-		$pp->SkipWhiteSpace($h);
+		$pp->SkipWhiteSpace();
 		
 		$char = $pp->ReadChar(true, true);
 
 		if ($char != '/' && !$pp->IsSpace($char)) {
-			$this->value = $pp->ReadValue($h);
+			$this->value = $pp->ReadValue();
 		}
 	}
 	

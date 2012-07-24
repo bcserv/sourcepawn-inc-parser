@@ -19,12 +19,12 @@ class PawnParser
 	{
 		$this->callback = $callback;
 
-		$this->RegisterElement(PawnComment);
-		$this->RegisterElement(PawnDefinition);
-		$this->RegisterElement(PawnEnum);
-		$this->RegisterElement(PawnFunction);
-		$this->RegisterElement(PawnStruct);
-		$this->RegisterElement(PawnVariable);
+		$this->RegisterElement('PawnComment');
+		$this->RegisterElement('PawnDefinition');
+		$this->RegisterElement('PawnEnum');
+		$this->RegisterElement('PawnFunction');
+		$this->RegisterElement('PawnStruct');
+		$this->RegisterElement('PawnVariable');
 	}
 
 	public function RegisterElement($element)
@@ -105,7 +105,7 @@ class PawnParser
 				//echo "Word: " . $this->word . " Offset: " . ftell($handle) . "<br />\n";
 				ob_flush(); flush();
 				
-				if ($this->IsValidElementNameChar($this->char, strlen($word)+1)) {
+				if ($this->IsValidElementNameChar($this->char, strlen($this->word)+1)) {
 					$this->word .= $this->char;
 				}
 				else if (strlen($this->word) >= 1) {
