@@ -103,6 +103,7 @@ class PawnEnum extends PawnElement
 		}
 		
 		$this->body = $body;
+        $this->lineEnd = $pp->GetLine();
 	}
 	
 	protected function ParseNormalEnumLine($line, $n)

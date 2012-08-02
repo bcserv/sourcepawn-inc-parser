@@ -52,10 +52,17 @@ class PawnComment extends PawnElement
 
 			$lastChar = $char;
 		}
+        
+        $this->lineEnd = $pp->GetLine();
 	}
 
 	public function __toString()
 	{
         return 'Comment';
+    }
+    
+    public function GetText()
+    {
+        return $this->text;
     }
 }

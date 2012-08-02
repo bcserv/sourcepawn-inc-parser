@@ -1,0 +1,94 @@
+<html>
+  <head>
+    <title>smlib API docs</title>
+    <script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+    <script type="text/javascript" src="js/jquery.tooltip.min.js"></script>
+    <script type="text/javascript" src="js/prettify.js"></script>
+    <script type="text/javascript">
+      $(function() {
+        $('.function > .prototype_wrapper')
+          .click(function() {
+            $(this).siblings('.body').toggle();
+          })
+          .tooltip({
+            'bodyHandler': function() {
+              return $(this).siblings('.docs').html();
+            }
+          });
+      });
+    </script>
+    <link rel="stylesheet" href="css/prettify.css" />
+    <link rel="stylesheet" href="css/jquery.tooltip.css" />
+    <link rel="stylesheet" href="css/screen.css" />
+  </head>
+  <body onload="prettyPrint()">
+    {% for func in jse.functions -%}
+    <div class="function" id="func_{{ func.name }}">
+      <div class="docs">{% set docs = func.docinfo %}
+        <div class="brief">{{ docs.brief|trim|nl2br }}</div>
+        {% if docs.params %}
+        <table class="params">
+          <thead>
+            <tr>
+              <th colspan="2">Parameters</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for param in docs.params %}
+            <tr>
+              <td class="name">{{ param.name }}</td>
+              <td class="info">{{ param.text }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% endif %}
+      </div>
+      <div class="prototype_wrapper">
+        <div class="prototype">
+          {% spaceless %}
+          <span class="static">
+            {% if func.isStatic %}
+              static
+            {% endif %}
+          </span>
+          {% if func.isStatic %}
+            <span class="whitespace">&nbsp;</span>
+          {% endif %}
+          <span class="types">
+            {% for type in func.types %}
+              <span class="type">{{ type }}</span>
+              <span class="whitespace">&nbsp;</span>
+            {% endfor %}
+          </span>
+          {% if func.type %}
+            <span class="whitespace">&nbsp;</span>
+          {% endif %}
+          <span class="returnType">{% if func.returnType %}<span class="value tag">{{ func.returnType}}</span>:{% endif %}</span>
+          <span class="name">{{ func.name }}</span>
+          <span class="arguments">
+            <span class="openparen">(</span>
+            {% for arg in func.arguments %}
+            <span class="argument">
+              <span class="byref">{% if arg.byreference %}&amp;{% endif %}</span>
+              <span class="type">{% if arg.type %}<span class="value tag">{{ arg.type }}</span><span class="colon">:</span>{% endif %}</span>
+              <span class="name">{{ arg.name }}</span>
+              <span class="dimensions">{{ arg.dimensions }}</span>
+              <span class="defaultvalue">{% if arg.defaultvalue %}=<span class="value">{{ arg.defaultvalue[1:] }}</span>{% endif %}</span>
+              <span class="comma">{% if not loop.last %},&nbsp;{% endif %}</span>
+            </span>
+            {% endfor %}
+            <span class="closeparen">)</span>
+            {% if not func.body %}<span class="semicolon">;</span>{% endif %}
+          </span>{% endspaceless %}
+          
+        </div>
+      </div>
+      {%- if func.body %}
+      <div class="body">
+        <pre class="prettyprint lang-c">{{ func.body|trim|replace({ "\t": '    ' }) }}</pre>
+      </div>{% endif %}
+    </div>
+    {% endfor %}
+  </body>
+</html>

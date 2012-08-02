@@ -5,7 +5,8 @@ class PawnFunction extends PawnElement
 	protected $isStatic = false;
 	protected $returnType;
 	protected $arguments = array();
-	protected $body = "";
+	protected $body = '';
+    protected $types = array();
 
 	// 'static' is not a type
 	static $keywords = array(
@@ -13,7 +14,8 @@ class PawnFunction extends PawnElement
 		'native',
 		'public',
 		'stock',
-		'forward'
+		'forward',
+        'functag'
 	);
 	
 	static function IsPawnElement($pawnParser)
@@ -70,19 +72,23 @@ class PawnFunction extends PawnElement
 		$this->isStatic = false;
 
 		$head = str_replace(array("\t", "\r", "\n"), ' ', $head);
-		$types = trim(substr($head, 0, strrpos($head, ' ')));
+        $len = strrpos($head, ' ');
+        if ($len === FALSE)
+            $len = count($head);
+		$types = trim(substr($head, 0, $len));
 		
 		$toks2 = explode(' ', $types);
 		
-		foreach($toks2 as $type) {
-			
+		foreach($toks2 as $type)
+        {
+            
 			if ($type == 'static') {
 				$this->isStatic = true;
 			}
 			else {
 				$pos = array_search($type, PawnFunction::$keywords);
 				if ($pos !== false) {
-					$this->type = $pos;
+					$this->types[] = PawnFunction::$keywords[$pos];
 				}
 			}
 		}
@@ -92,19 +98,17 @@ class PawnFunction extends PawnElement
 	{
 		$pos_colon = strpos($head, ':');
 		
-		if ($pos_colon !== false) {
+		if ($pos_colon === false) {
 			$this->returnType = '';
 			return '';
 		}
 		
 		$pos_space = strrpos($head, ' ');
-		
-		if ($pos_space === false) {
+		if ($pos_space === false)
 			$pos_space = 0;
-		}
 
 		$head = str_replace(array("\t", "\r", "\n"), ' ', $head);
-		 $this->returnType = trim(substr($head, strrpos($head, ' '), $pos_colon));
+		$this->returnType = trim(substr($head, $pos_space, $pos_colon - $pos_space));
 	}
 
 	public function ParseName($head)
@@ -112,12 +116,12 @@ class PawnFunction extends PawnElement
 		$head = str_replace(array("\t", "\r", "\n"), ' ', $head);
 
 		$pos = strpos($head, ':');
-		
-		if ($pos === false) {
-			$pos = strpos($head, ' ');
-		}
+		if ($pos === false)
+			$pos = strrpos($head, ' ');
+		else
+            $pos++;
 
-		$this->name = trim(substr($head, $pos+1));
+		$this->name = trim(substr($head, $pos));
 	}
 
 	public function ParseArguments($str)
@@ -181,7 +185,7 @@ class PawnFunction extends PawnElement
 	{
 		$pp = $this->pawnParser;
 
-		$body = "";
+		$body = '';
 		$braceLevel = 0;
 		$inString = false;
 		$stringType = 0; // " = 1, ' = 2
@@ -228,10 +232,36 @@ class PawnFunction extends PawnElement
 		}
 		
 		$this->body = $body;
+        $this->lineEnd = $pp->GetLine();
 	}
 	
 	public function __toString()
 	{
         return 'Function (' . $this->GetName() . ')';
     }
+    
+    public function GetArguments()
+    {
+        return $this->arguments;
+    }
+    
+    public function GetBody()
+    {
+        return $this->body;
+    }
+    
+    public function GetReturnType()
+    {
+        return $this->returnType;
+    }
+    
+    public function IsStatic()
+    {
+        return $this->isStatic;
+    }
+	
+	public function GetTypes()
+	{
+        return $this->types;
+	}
 }

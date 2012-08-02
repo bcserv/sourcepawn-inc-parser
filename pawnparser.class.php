@@ -64,7 +64,7 @@ class PawnParser
 			$callback = $this->callback;
 
 			if (is_callable($callback)) {
-				$callback($pawnElement);
+				call_user_func($callback, $pawnElement);;
 			}
 			
 			$this->char = fgetc($this->handle);
@@ -89,9 +89,8 @@ class PawnParser
 	{
 		$handle = fopen($file, 'r');
 		
-		if ($handle === false) {
+		if ($handle === false)
 			return;
-		}
 		
 		$this->handle = $handle;
 		
@@ -100,8 +99,8 @@ class PawnParser
 			$offset = ftell($handle);
 			$this->word = "";
 
-			while ($this->ReadChar(true) !== false) {
-
+			while ($this->ReadChar(true) !== false) 
+            {
 				//echo "Word: " . $this->word . " Offset: " . ftell($handle) . "<br />\n";
 				ob_flush(); flush();
 				
@@ -125,7 +124,7 @@ class PawnParser
 
 							$callback = $this->callback;
 							if (is_callable($callback)) {
-								$callback($pawnElement);
+								call_user_func($callback, $pawnElement);
 							}
 						}
 					}
@@ -251,6 +250,9 @@ class PawnParser
 			if ($char >= 'A' && $char <= 'Z') {
 				continue;
 			}
+            
+            if ($char == '_')
+                continue;
 
 			if ($pos > 1 && is_numeric($char)) {
 				continue;
