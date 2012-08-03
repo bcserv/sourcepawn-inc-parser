@@ -57,6 +57,8 @@ class JSPawnFunction
     public $body;
     public $types;
     
+    public $element;
+    
     const TYPE_INVALID  = -1;
     const TYPE_BRIEF    = 0;
     const TYPE_PARAM    = 1;
@@ -74,16 +76,22 @@ class JSPawnFunction
     );
     
     function __construct($name, array $arguments, $body, $isStatic, $types, 
-                         $returnType, $docstring)
+                         $returnType, $comment, $element)
     {
         $this->name = $name;
         $this->arguments = $arguments;
-        $this->docstring = $docstring;
         $this->body = $body;
         $this->isStatic = $isStatic;
         $this->returnType = $returnType;
         $this->types = $types;
+        $this->element = $element;
         
+        $this->setComment($comment);
+    }
+    
+    public function setComment($comment)
+    {
+        $this->docstring = comment_to_docstring($comment);
         $this->docinfo = JSPawnFunction::parse_docstring($this->docstring);
     }
 
@@ -107,10 +115,9 @@ class JSPawnFunction
         foreach ($lines as $line)
         {
             $matches = null;
-            if (!$line || preg_match('/^@([^\s]+)\s+(.*)$/', $line, $matches) === 0)
-            {
+            if (preg_match('/^@([^\s]+)\s+(.*)$/', $line, $matches) === 0)
                 $lastText .= ' ' . trim($line) . "\n";
-            }
+            
             else
             {
                 switch ($lastType)
@@ -148,11 +155,13 @@ class JSPawnFunction
                 {
                     $lastType = JSPawnFunction::$TYPES[$matches[1]];
                     
-                    if ($lastType === JSPawnFunction::TYPE_PARAM && preg_match('/([a-zA-Z_][a-zA-Z0-9_]*)\s+(.*)$/', $matches[2], $paraminfo) !== FALSE)
+                    if ($lastType === JSPawnFunction::TYPE_PARAM && preg_match('/([a-zA-Z_][a-zA-Z0-9_]*)\s+(.*)$/', $matches[2], $paraminfo) !== 0)
                     {
                         $lastName = $paraminfo[1];
                         $lastText = $paraminfo[2];
                     }
+                    else if ($lastType === JSPawnFunction::TYPE_NORETURN)
+                        $parsed['return'] = null;
                     else if (preg_match('/^\s*(.*)\s*$/', $matches[2], $text))
                         $lastText = $text[1];
                 }
@@ -166,40 +175,53 @@ class JSPawnFunction
 class JavaScriptEmitter
 {
     public $functions = array();
+    public $comments = array();
     
     public function handlePawnElement($pawnElement)
     {
-        static $last_comment = '';
         if ($pawnElement instanceof PawnComment)
-            $last_comment = $pawnElement;
+        {
+            $comment = $pawnElement;
+            $this->comments[$comment->GetLineEnd()] = $comment;
+        }
         
         elseif ($pawnElement instanceof PawnFunction)
         {
             $func = $pawnElement;
             
-            if ($last_comment->GetLineEnd() === ($func->GetLineStart() - 1))
-            {
-                $docstring = comment_to_docstring($last_comment->GetText());
-                $jsfunc = new JSPawnFunction(
-                    $func->GetName(),
-                    $func->GetArguments(),
-                    $func->GetBody(),
-                    $func->IsStatic(),
-                    $func->GetTypes(),
-                    $func->GetReturnType(),
-                    $docstring
-                );
-                array_push($this->functions, $jsfunc);
-            }
+            $comment = '';
+            $key = $func->GetLineStart() - 1;
+            if (array_key_exists($key, $this->comments))
+                $comment = $this->comments[$key]->GetText();
             
-            $last_comment = '';
+            $jsfunc = new JSPawnFunction(
+                $func->GetName(),
+                $func->GetArguments(),
+                $func->GetBody(),
+                $func->IsStatic(),
+                $func->GetTypes(),
+                $func->GetReturnType(),
+                $comment,
+                $func
+            );
+            array_push($this->functions, $jsfunc);
+        }
+    }
+    
+    public function findComments()
+    {
+        foreach ($this->functions as $jsfunc)
+        {
+            $key = $jsfunc->element->GetLineStart() - 1;
+            if (array_key_exists($key, $this->comments))
+                $jsfunc->setComment($this->comments[$key]);
         }
     }
 };
 
 
 
-$parseDir = "../../programming/sourcemod-central/plugins/include";
+$parseDir = "pawn/smlib";
 
 $jse = new JavaScriptEmitter();
 $pp = new PawnParser(array($jse, 'handlePawnElement'));
@@ -208,7 +230,7 @@ $pp = new PawnParser(array($jse, 'handlePawnElement'));
 //ParseDirectory($parseDir, $pp, 'Callback_PawnElement');
 
 // Testing with a single file
-$pp->parseFile($parseDir . '/dbi.inc');
+$pp->parseFile($parseDir . '/clients.inc');
 
 echo $twig->render('index.htm', array('jse' => $jse));
 ?>

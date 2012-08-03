@@ -46,6 +46,7 @@ class PawnFunction extends PawnElement
 		parent::Parse();
 
 		$pp = $this->pawnParser;
+        $this->line = $pp->GetLine();
 		
 		$head = "";
 		
@@ -81,7 +82,6 @@ class PawnFunction extends PawnElement
 		
 		foreach($toks2 as $type)
         {
-            
 			if ($type == 'static') {
 				$this->isStatic = true;
 			}
@@ -189,9 +189,9 @@ class PawnFunction extends PawnElement
 		$braceLevel = 0;
 		$inString = false;
 		$stringType = 0; // " = 1, ' = 2
-
-		while (($char = $pp->ReadChar()) !== false) {
-			
+        
+		while (($char = $pp->ReadChar()) !== false)
+        {
 			if ($braceLevel == 0) {
 				
 				if ($char == ';') {
@@ -226,6 +226,12 @@ class PawnFunction extends PawnElement
 			}
 			else if ($char == '}' && !$inString) {
 				$braceLevel--;
+                
+                if ($braceLevel === 0)
+                {
+                    $body .= $char;
+                    break;
+                }
 			}
 			
 			$body .= $char;

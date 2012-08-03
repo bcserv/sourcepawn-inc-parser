@@ -9,7 +9,9 @@
         $('.function > .prototype_wrapper')
           .click(function() {
             $(this).siblings('.body').toggle();
-          })
+          });
+        
+        $('.function:has(.docs) > .prototype_wrapper')
           .tooltip({
             'bodyHandler': function() {
               return $(this).siblings('.docs').html();
@@ -24,6 +26,7 @@
   <body onload="prettyPrint()">
     {% for func in jse.functions -%}
     <div class="function" id="func_{{ func.name }}">
+      {% if func.docstring %}
       <div class="docs">{% set docs = func.docinfo %}
         <div class="brief">{{ docs.brief|trim|nl2br }}</div>
         {% if docs.params %}
@@ -44,6 +47,7 @@
         </table>
         {% endif %}
       </div>
+      {% endif %}
       <div class="prototype_wrapper">
         <div class="prototype">
           {% spaceless %}
