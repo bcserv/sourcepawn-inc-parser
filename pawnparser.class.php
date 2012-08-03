@@ -51,6 +51,27 @@ class PawnParser
 	{
 		return $this->lineNumber;
 	}
+    
+    // Debugging function to get the entire line
+    public function _GetLineString($line=null)
+    {
+        static $file_lines = null;
+        if ($file_lines === null)
+        {
+            $pos = ftell($this->handle);
+            fseek($this->handle, 0, SEEK_SET);
+            
+            $file_lines = array();
+            while (($file_lines[] = fgets($this->handle)) !== FALSE);
+            
+            fseek($this->handle, $pos, SEEK_SET);
+        }
+        
+        if ($line === null)
+            $line = $this->GetLine();
+        
+        return $file_lines[$line-1];
+    }
 	
 	public function ReadChar($parseComments=true, $rewind=false)
 	{
