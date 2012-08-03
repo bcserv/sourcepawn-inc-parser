@@ -6,6 +6,7 @@ class PawnFunction extends PawnElement
 	protected $returnType;
 	protected $arguments = array();
 	protected $body = '';
+    protected $bodyLineStart = 0;
     protected $types = array();
 
 	// 'static' is not a type
@@ -184,14 +185,23 @@ class PawnFunction extends PawnElement
 	protected function ParseBody()
 	{
 		$pp = $this->pawnParser;
-
+        
 		$body = '';
 		$braceLevel = 0;
 		$inString = false;
 		$stringType = 0; // " = 1, ' = 2
         
-		while (($char = $pp->ReadChar()) !== false)
+		while (($char = $pp->ReadChar(false)) !== false)
         {
+            if (PawnComment::IsPawnElement($pp)) {
+                $pp->Jump(-1);
+                $comment = new PawnComment($pp);
+                $comment->Parse();
+                
+                $body .= $comment->GetRaw();
+                continue;
+            }
+            
 			if ($braceLevel == 0) {
 				
 				if ($char == ';') {
@@ -222,6 +232,8 @@ class PawnFunction extends PawnElement
 				}
 			}
 			if ($char == '{' && !$inString) {
+                if ($braceLevel == 0)
+                    $this->bodyLineStart = $pp->GetLine();
 				$braceLevel++;
 			}
 			else if ($char == '}' && !$inString) {
@@ -254,6 +266,11 @@ class PawnFunction extends PawnElement
     public function GetBody()
     {
         return $this->body;
+    }
+    
+    public function GetBodyLineStart()
+    {
+        return $this->bodyLineStart;
     }
     
     public function GetReturnType()

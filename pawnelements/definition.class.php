@@ -23,6 +23,7 @@ class PawnDefinition extends PawnElement
 			
 			if ($pp->IsSpace($char)) {
 				$pp->Jump(-1);
+                
 				break;
 			}
 

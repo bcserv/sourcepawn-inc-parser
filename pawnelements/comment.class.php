@@ -6,6 +6,7 @@ define('PAWNCOMMENT_TYPE_MULTILINE',	1);
 class PawnComment extends PawnElement
 {
 	protected $text;
+    protected $raw;
 	
 	static function IsPawnElement($pawnParser)
 	{
@@ -20,6 +21,13 @@ class PawnComment extends PawnElement
 		
 		return false;
 	}
+    
+    public function _ReadChar($pp, $jump=false)
+    {
+        $char = $pp->ReadChar(false);
+        $this->raw .= $char;
+        return $char;
+    }
 	
 	public function Parse()
 	{
@@ -27,9 +35,10 @@ class PawnComment extends PawnElement
 
 		$pp = $this->pawnParser;
 		
-		$pp->Jump(1);
+        // Serves the purpose of $pp->Jump(1), but saves to $raw
+        $this->_ReadChar($pp, true);
 		
-		if ($pp->ReadChar(false) == '/') {
+		if ($this->_ReadChar($pp) == '/') {
 			$this->type = PAWNCOMMENT_TYPE_SINGLELINE;
 		}
 		else {
@@ -38,7 +47,7 @@ class PawnComment extends PawnElement
 		
 		$lastChar = "";
 
-		while (($char = $pp->ReadChar(false)) !== false) {
+		while (($char = $this->_ReadChar($pp)) !== false) {
 			
 			if ($this->type == PAWNCOMMENT_TYPE_SINGLELINE && $char == "\n") {
 				break;
@@ -64,5 +73,10 @@ class PawnComment extends PawnElement
     public function GetText()
     {
         return $this->text;
+    }
+    
+    public function GetRaw()
+    {
+        return $this->raw;
     }
 }

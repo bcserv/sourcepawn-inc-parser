@@ -2,7 +2,19 @@ body {
   font-family: serif;
 }
 
-.function > .docs { display: none; }
+.function > .docs_wrapper { display: none; }
+.docs > .params tr:last-child > td { border-bottom: 0 none; }
+.docs > .params td { padding: 3px; }
+.docs > .params td.name {
+  padding-right: 5px;
+  font-weight: bold;
+  text-align: right;
+}
+.docs > .params td.info {
+  border-bottom: 1px solid black;
+  border-radius: 5px;
+  border-left: 1px solid black;
+}
 .function > .prototype_wrapper:hover {
   background-color: #FFE09E;
   border-radius: 5px;

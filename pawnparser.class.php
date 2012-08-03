@@ -64,14 +64,16 @@ class PawnParser
 			$callback = $this->callback;
 
 			if (is_callable($callback)) {
-				call_user_func($callback, $pawnElement);;
+				call_user_func($callback, $pawnElement);
 			}
 			
 			$this->char = fgetc($this->handle);
+            
+            return false;
 		}
 		
 		if ($rewind) {
-			$this->Jump(-1);
+            $this->Jump(-1);
 		}
 		else if ($this->char == "\n") {
 			$this->lineNumber++;
@@ -97,7 +99,7 @@ class PawnParser
 		while (!feof($handle)) {
 			
 			$offset = ftell($handle);
-			$this->word = "";
+			$this->word = '';
 
 			while ($this->ReadChar(true) !== false) 
             {
@@ -112,7 +114,7 @@ class PawnParser
 					if ($this->word[0] == '#' && substr($this->word, 1, 6) != 'define') {
 						// Not handled macro, skip this line
 						fgets($handle);
-						$this->lineNumber++;
+                        $this->lineNumber++;
 					}
 
 					foreach ($this->elements as $element) {
@@ -183,7 +185,7 @@ class PawnParser
 					break;
 				}
 				else if ($lastChar . $char == '//' || $lastChar . $char == '/*') {
-					fseek($handle, -2, SEEK_CUR);
+					$this->Jump(-2);
 					break;
 				}
 			}

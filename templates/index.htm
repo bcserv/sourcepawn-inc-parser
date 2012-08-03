@@ -11,12 +11,16 @@
             $(this).siblings('.body').toggle();
           });
         
-        $('.function:has(.docs) > .prototype_wrapper')
+        $('.function:has(.docs_wrapper) > .prototype_wrapper')
           .tooltip({
             'bodyHandler': function() {
-              return $(this).siblings('.docs').html();
+              return $(this).siblings('.docs_wrapper').html();
             }
           });
+        
+        $('.function .arguments').each(function(k,v) {
+          $(v).html(prettyPrintOne($(v).html()));
+        });
       });
     </script>
     <link rel="stylesheet" href="css/prettify.css" />
@@ -27,25 +31,37 @@
     {% for func in jse.functions -%}
     <div class="function" id="func_{{ func.name }}">
       {% if func.docstring %}
-      <div class="docs">{% set docs = func.docinfo %}
-        <div class="brief">{{ docs.brief|trim|nl2br }}</div>
-        {% if docs.params %}
-        <table class="params">
-          <thead>
-            <tr>
-              <th colspan="2">Parameters</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for param in docs.params %}
-            <tr>
-              <td class="name">{{ param.name }}</td>
-              <td class="info">{{ param.text }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+      <div class="docs_wrapper">
+        <div class="docs">{% set docs = func.docinfo %}
+          <div class="brief">{{ docs.brief|trim|nl2br }}</div>
+          {% if docs.params %}
+          <table class="params">
+            <thead>
+              <tr>
+                <th colspan="2">Parameters</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for param in docs.params %}
+              <tr>
+                <td class="name">{{ param.name }}</td>
+                <td class="info">{{ param.text }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% endif %}
+          {% if docs.return != '' %}
+          <table class="return">
+            <tbody>
+              <tr>
+                <td class="label">Returns:</td>
+                <td class="info">{% if docs.return == null %}<em>Nothing!</em>{% else %}{{ docs.return|trim|nl2br }}{% endif %}</td>
+              </tr>
+            </tbody>
+          </div>
         {% endif %}
+        </div>
       </div>
       {% endif %}
       <div class="prototype_wrapper">
@@ -90,7 +106,7 @@
       </div>
       {%- if func.body %}
       <div class="body">
-        <pre class="prettyprint lang-c">{{ func.body|trim|replace({ "\t": '    ' }) }}</pre>
+        <pre class="prettyprint lang-c linenums:{{ func.element.GetBodyLineStart() }}">{{ func.body|trim|replace({ "\t": '    ' }) }}</pre>
       </div>{% endif %}
     </div>
     {% endfor %}
