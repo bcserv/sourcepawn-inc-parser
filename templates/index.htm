@@ -20,7 +20,7 @@
             return;
           }
           
-          var _terms = terms.split(' ');
+          var _terms = terms.toLowerCase().split(' ');
           
           $('.function').each(function(key, value) {
             var proto;
@@ -28,6 +28,7 @@
               proto = $(value).find('.prototype > .name').text();
             else
               proto = $(value).find('.prototype').text();
+            proto = proto.toLowerCase();
             
             var matched = true;
             

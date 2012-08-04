@@ -229,6 +229,26 @@ class PawnParser
         
         return $value;
     }
+    
+    /* Reads the string to the end of the line (allowing for backslashes to
+     * escape newlines). Useful for #defines.
+     */
+    public function ReadToEndOfLine()
+    {
+        $value = '';
+        $lastChar = '';
+        
+        while (($char = $this->ReadChar()) !== false)
+        {
+            if ($lastChar != "\\" && $char == "\n")
+                break;
+            
+            $value .= $char;
+            $lastChar = $char;
+        }
+        
+        return $value;
+    }
 
     public function IsValidElementNameChar($str, $pos)
     {

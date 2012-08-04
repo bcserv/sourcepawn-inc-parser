@@ -35,7 +35,7 @@ class PawnDefinition extends PawnElement
         $char = $pp->ReadChar(true, true);
 
         if ($char != '/' && !$pp->IsSpace($char)) {
-            $this->value = $pp->ReadValue();
+            $this->value = $pp->ReadToEndOfLine();
         }
     }
     
