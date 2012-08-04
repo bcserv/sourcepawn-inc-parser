@@ -5,6 +5,8 @@
     <script type="text/javascript" src="js/jquery.tooltip.min.js"></script>
     <script type="text/javascript" src="js/prettify.js"></script>
     <script type="text/javascript">
+      var search_names_only = false;
+      
       function escape_filter(text)
       {
         return text.replace(/([ #;&,.+*~\':"!^$[\]()=>|\/%])/g, '\\$1');
@@ -18,12 +20,31 @@
             return;
           }
           
-          var contains = $.map(terms.split(' '), function(value, index) {
-            return ':contains(' + escape_filter(value) + ')';
-          });
+          var _terms = terms.split(' ');
           
-          $('.function').hide();
-          $('.function:has(.prototype > .name' + contains + ')').show();
+          $('.function').each(function(key, value) {
+            var proto;
+            if (search_names_only)
+              proto = $(value).find('.prototype > .name').text();
+            else
+              proto = $(value).find('.prototype').text();
+            
+            var matched = true;
+            
+            for (var i in _terms)
+            {
+              if (proto.indexOf(_terms[i]) == -1)
+              {
+                matched = false;
+                break;
+              }
+            }
+            
+            if (matched)
+              $(value).show();
+            else
+              $(value).hide();
+          });
       }
       
       function clear_search_bar()
@@ -48,14 +69,14 @@
           $(v).html(prettyPrintOne($(v).html()));
         });
         
-        function _on_search_change()
+        function _refilter_search()
         {
-          filter_functions_list($(this).val());
+          filter_functions_list($('#search_bar_input').val());
         }
         
         $('#search_bar_input').on({
-          change: _on_search_change,
-          keyup: _on_search_change,
+          change: _refilter_search,
+          keyup: _refilter_search,
           
           // Allow pressing Ctrl+D to clear (hurka durka)
           keydown: function(e) {
@@ -65,6 +86,12 @@
               return false;
             }
           }
+        });
+        
+        search_names_only = $('#search_bar_names_only').is(':checked');
+        $('#search_bar_names_only').change(function() {
+          search_names_only = $(this).is(':checked');
+          _refilter_search();
         });
       });
     </script>
@@ -77,6 +104,8 @@
       <label for="search_bar_input">Filter:</label>
       <input id="search_bar_input" type="text" />
       <a href="javascript:void(0);" onclick="clear_search_bar();" id="search_bar_reset">Reset</a>
+      <label for="search_bar_names_only">Names only:</label>
+      <input id="search_bar_names_only" type="checkbox" />
     </div>
     <div id="functions">
       {% for func in jse.functions -%}
