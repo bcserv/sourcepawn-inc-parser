@@ -5,16 +5,25 @@
     <script type="text/javascript" src="js/jquery.tooltip.min.js"></script>
     <script type="text/javascript" src="js/prettify.js"></script>
     <script type="text/javascript">
-      function filter_functions_list(term)
+      function escape_filter(text)
       {
-          if (!term)
+        return text.replace(/([ #;&,.+*~\':"!^$[\]()=>|\/%])/g, '\\$1');
+      }
+      
+      function filter_functions_list(terms)
+      {
+          if (!$.trim(terms))
           {
             $('.function').show();
             return;
           }
           
+          var contains = $.map(terms.split(' '), function(value, index) {
+            return ':contains(' + escape_filter(value) + ')';
+          });
+          
           $('.function').hide();
-          $('.function:has(.prototype > .name:contains(' + term + '))').show();
+          $('.function:has(.prototype > .name' + contains + ')').show();
       }
       
       function clear_search_bar()

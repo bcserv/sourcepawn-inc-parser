@@ -1,26 +1,26 @@
 <?php
 
-define('PAWNCOMMENT_TYPE_SINGLELINE',	0);
-define('PAWNCOMMENT_TYPE_MULTILINE',	1);
+define('PAWNCOMMENT_TYPE_SINGLELINE',    0);
+define('PAWNCOMMENT_TYPE_MULTILINE',    1);
 
 class PawnComment extends PawnElement
 {
-	protected $text;
+    protected $text;
     protected $raw;
-	
-	static function IsPawnElement($pawnParser)
-	{
-		if ($pawnParser->GetCurrentChar() == '/') {
-			
-			$c = $pawnParser->ReadChar(false, true);
+    
+    static function IsPawnElement($pawnParser)
+    {
+        if ($pawnParser->GetCurrentChar() == '/') {
+            
+            $c = $pawnParser->ReadChar(false, true);
 
-			if ($c == '/' || $c == '*') {
-				return true;
-			}
-		}
-		
-		return false;
-	}
+            if ($c == '/' || $c == '*') {
+                return true;
+            }
+        }
+        
+        return false;
+    }
     
     public function _ReadChar($pp, $jump=false)
     {
@@ -28,45 +28,45 @@ class PawnComment extends PawnElement
         $this->raw .= $char;
         return $char;
     }
-	
-	public function Parse()
-	{
-		parent::Parse();
+    
+    public function Parse()
+    {
+        parent::Parse();
 
-		$pp = $this->pawnParser;
-		
+        $pp = $this->pawnParser;
+        
         // Serves the purpose of $pp->Jump(1), but saves to $raw
         $this->_ReadChar($pp, true);
-		
-		if ($this->_ReadChar($pp) == '/') {
-			$this->type = PAWNCOMMENT_TYPE_SINGLELINE;
-		}
-		else {
-			$this->type = PAWNCOMMENT_TYPE_MULTILINE;
-		}
-		
-		$lastChar = "";
+        
+        if ($this->_ReadChar($pp) == '/') {
+            $this->type = PAWNCOMMENT_TYPE_SINGLELINE;
+        }
+        else {
+            $this->type = PAWNCOMMENT_TYPE_MULTILINE;
+        }
+        
+        $lastChar = "";
 
-		while (($char = $this->_ReadChar($pp)) !== false) {
-			
-			if ($this->type == PAWNCOMMENT_TYPE_SINGLELINE && $char == "\n") {
-				break;
-			}
-			else if ($lastChar . $char == '*/') {
-				$this->text = substr($this->text, 0, -1);
-				break;
-			}
+        while (($char = $this->_ReadChar($pp)) !== false) {
+            
+            if ($this->type == PAWNCOMMENT_TYPE_SINGLELINE && $char == "\n") {
+                break;
+            }
+            else if ($lastChar . $char == '*/') {
+                $this->text = substr($this->text, 0, -1);
+                break;
+            }
 
-			$this->text .= $char;
+            $this->text .= $char;
 
-			$lastChar = $char;
-		}
+            $lastChar = $char;
+        }
         
         $this->lineEnd = $pp->GetLine();
-	}
+    }
 
-	public function __toString()
-	{
+    public function __toString()
+    {
         return 'Comment';
     }
     
