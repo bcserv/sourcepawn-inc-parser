@@ -1,4 +1,5 @@
 <?php
+namespace Bcserv\SourcepawnIncParser\PawnElement;
 
 class PawnDefinition extends PawnElement
 {
@@ -38,7 +39,7 @@ class PawnDefinition extends PawnElement
             $this->value = $pp->ReadToEndOfLine();
         }
     }
-    
+
     public function __toString()
     {
         return 'Defintion (' . $this->name . ')';

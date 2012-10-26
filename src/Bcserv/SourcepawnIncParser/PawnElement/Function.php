@@ -1,4 +1,5 @@
 <?php
+namespace Bcserv\SourcepawnIncParser\PawnElement;
 
 class PawnFunction extends PawnElement
 {
@@ -18,7 +19,7 @@ class PawnFunction extends PawnElement
         'forward',
         'functag'
     );
-    
+
     static function IsPawnElement($pawnParser)
     {
         $word = $pawnParser->GetCurrentWord();
@@ -41,7 +42,7 @@ class PawnFunction extends PawnElement
         
         return false;
     }
-    
+
     public function Parse()
     {
         parent::Parse();
@@ -68,7 +69,7 @@ class PawnFunction extends PawnElement
         $this->ParseArguments($toks[1]);
         $this->ParseBody();
     }
-    
+
     public function ParseTypes($head)
     {
         $this->isStatic = false;
@@ -252,37 +253,37 @@ class PawnFunction extends PawnElement
         $this->body = $body;
         $this->lineEnd = $pp->GetLine();
     }
-    
+
     public function __toString()
     {
         return 'Function (' . $this->GetName() . ')';
     }
-    
+
     public function GetArguments()
     {
         return $this->arguments;
     }
-    
+
     public function GetBody()
     {
         return $this->body;
     }
-    
+
     public function GetBodyLineStart()
     {
         return $this->bodyLineStart;
     }
-    
+
     public function GetReturnType()
     {
         return $this->returnType;
     }
-    
+
     public function IsStatic()
     {
         return $this->isStatic;
     }
-    
+
     public function GetTypes()
     {
         return $this->types;

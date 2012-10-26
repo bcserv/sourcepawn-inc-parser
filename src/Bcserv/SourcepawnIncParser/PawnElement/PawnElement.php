@@ -1,4 +1,5 @@
 <?php
+namespace Bcserv\SourcepawnIncParser;
 
 abstract class PawnElement
 {

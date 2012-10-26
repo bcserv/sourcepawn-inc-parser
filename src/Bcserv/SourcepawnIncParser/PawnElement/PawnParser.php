@@ -1,12 +1,7 @@
 <?php
+namespace Bcserv\SourcepawnIncParser;
 
-require_once "pawnelement.class.php";
-require_once "pawnelements/comment.class.php";
-require_once "pawnelements/definition.class.php";
-require_once "pawnelements/enum.class.php";
-require_once "pawnelements/function.class.php";
-require_once "pawnelements/struct.class.php";
-require_once "pawnelements/variable.class.php";
+use PawnElement;
 
 class PawnParser
 {
@@ -19,15 +14,15 @@ class PawnParser
     {
         $this->callback = $callback;
 
-        $this->RegisterElement('PawnComment');
-        $this->RegisterElement('PawnDefinition');
-        $this->RegisterElement('PawnEnum');
-        $this->RegisterElement('PawnFunction');
-        $this->RegisterElement('PawnStruct');
-        $this->RegisterElement('PawnVariable');
+        $this->RegisterPawnElement('PawnComment');
+        $this->RegisterPawnElement('PawnDefinition');
+        $this->RegisterPawnElement('PawnEnum');
+        $this->RegisterPawnElement('PawnFunction');
+        $this->RegisterPawnElement('PawnStruct');
+        $this->RegisterPawnElement('PawnVariable');
     }
 
-    public function RegisterElement($element)
+    public function RegisterPawnElement($element)
     {
         $this->elements[] = $element;
     }

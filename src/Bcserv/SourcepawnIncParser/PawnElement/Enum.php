@@ -1,15 +1,16 @@
 <?php
-
-define('PAWNENUM_TYPE_NORMAL',    0);
-define('PAWNENUM_TYPE_FUNC',    1);
+namespace Bcserv\SourcepawnIncParser\PawnElement;
 
 class PawnEnum extends PawnElement
 {
+    const PAWNENUM_TYPE_NORMAL = 0;
+    const PAWNENUM_TYPE_FUNC   = 1;
+
     static $types = array(
         'enum',
         'funcenum'
     );
-    
+
     protected $elements = array();
     
     static function IsPawnElement($pawnParser)
@@ -20,7 +21,7 @@ class PawnEnum extends PawnElement
 
         return false;
     }
-    
+
     public function Parse()
     {
         parent::Parse();
@@ -31,7 +32,7 @@ class PawnEnum extends PawnElement
 
         $this->pawnParser->Jump(1);
     }
-    
+
     protected function ParseType()
     {
         $word = $this->pawnParser->GetWord();
@@ -41,7 +42,7 @@ class PawnEnum extends PawnElement
             $this->type = $pos;
         }
     }
-    
+
     protected function ParseName()
     {
         $pp = $this->pawnParser;
@@ -52,7 +53,7 @@ class PawnEnum extends PawnElement
             $this->name = $pp->GetWord();
         }
     }
-    
+
     protected function ParseBody()
     {
         $pp = $this->pawnParser;
@@ -105,7 +106,7 @@ class PawnEnum extends PawnElement
         $this->body = $body;
         $this->lineEnd = $pp->GetLine();
     }
-    
+
     protected function ParseNormalEnumLine($line, $n)
     {
         $element = array();
@@ -140,7 +141,7 @@ class PawnEnum extends PawnElement
         
         return $n;
     }
-    
+
     protected function ParseFuncEnumLine($line)
     {
         $pawnFunction = new PawnFunction($this->pawnParser);
@@ -152,7 +153,7 @@ class PawnEnum extends PawnElement
         
         $this->elements[] = $pawnFunction;
     }
-    
+
     public function __toString()
     {
         return 'Enum (' . $this->GetName() . ')';

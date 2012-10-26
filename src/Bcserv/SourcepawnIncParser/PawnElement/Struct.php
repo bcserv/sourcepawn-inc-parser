@@ -1,4 +1,5 @@
 <?php
+namespace Bcserv\SourcepawnIncParser\PawnElement;
 
 class PawnStruct extends PawnElement
 {
@@ -10,7 +11,7 @@ class PawnStruct extends PawnElement
 
         return false;
     }
-    
+
     public function Parse()
     {
         parent::Parse();
@@ -23,7 +24,7 @@ class PawnStruct extends PawnElement
             }
         }
     }
-    
+
     public function __toString()
     {
         return 'Struct (' . $this->GetName() . ')';

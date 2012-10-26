@@ -1,13 +1,14 @@
 <?php
-
-define('PAWNCOMMENT_TYPE_SINGLELINE',    0);
-define('PAWNCOMMENT_TYPE_MULTILINE',    1);
+namespace Bcserv\SourcepawnIncParser\PawnElement;
 
 class PawnComment extends PawnElement
 {
+    const PAWNCOMMENT_TYPE_SINGLELINE = 0;
+    const PAWNCOMMENT_TYPE_MULTILINE  = 1;
+
     protected $text;
     protected $raw;
-    
+
     static function IsPawnElement($pawnParser)
     {
         if ($pawnParser->GetCurrentChar() == '/') {
@@ -21,14 +22,14 @@ class PawnComment extends PawnElement
         
         return false;
     }
-    
+
     public function _ReadChar($pp, $jump=false)
     {
         $char = $pp->ReadChar(false);
         $this->raw .= $char;
         return $char;
     }
-    
+
     public function Parse()
     {
         parent::Parse();
@@ -69,12 +70,12 @@ class PawnComment extends PawnElement
     {
         return 'Comment';
     }
-    
+
     public function GetText()
     {
         return $this->text;
     }
-    
+
     public function GetRaw()
     {
         return $this->raw;

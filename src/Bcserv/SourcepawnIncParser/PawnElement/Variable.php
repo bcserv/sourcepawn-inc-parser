@@ -1,4 +1,5 @@
 <?php
+namespace Bcserv\SourcepawnIncParser\PawnElement;
 
 class PawnVariable extends PawnElement
 {
@@ -7,7 +8,7 @@ class PawnVariable extends PawnElement
         'decl',
         'public'
     );
-    
+
     static function IsPawnElement($pawnParser)
     {
         if (in_array($pawnParser->GetCurrentWord(), PawnVariable::$keywords)) {
@@ -16,7 +17,7 @@ class PawnVariable extends PawnElement
         
         return false;
     }
-    
+
     public function Parse()
     {
         parent::Parse();
