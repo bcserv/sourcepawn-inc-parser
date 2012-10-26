@@ -8,20 +8,23 @@ Example
 
 ```php
 <?php
-use Bcserv\SourcepawnIncParser\PawnParser;
+// This loads a very simple PHP class autoloader, doing the basics.
+// You can use your own instead.
+require_once "autoloader.php";
 
-// if you are not using PHP's namespace autoloading mechanism you need this also:
-// require_once "path_to_library/src/Bcserv/SourcepawnIncParser/PawnParser.php";
+use Bcserv\SourcepawnIncParser\PawnParser;
 
 function pawnParserCallback($pawnElement)
 {
-	echo "Wow this is amazing: <pre>"
-			. print_r($pawnElement, true)
-			. "</pre>";
+	// This dumps the whole object for demonstration.
+	// You should call public getters defined in
+	// src/Bcserv/SourcepawnIncParser/PawnElement/*.php
+    var_dump($pawnElement);
 }
 
-$pawnParser = new PawnParser(pawnParserCallback);
-$pawnParser->parseFile('clients.inc');
+$pawnParser = new PawnParser('pawnParserCallback');
+$pawnParser->parseFile('/path/to/pawnfile.inc');
+
 
 ```
 
@@ -29,7 +32,7 @@ Requirements
 ---------
 
 * PHP >= 5.3
-* A [PHP autoloader](http://php.net/manual/de/language.oop5.autoload.php) to autoload the used namespaces
+* A [PHP autoloader](http://php.net/manual/de/language.oop5.autoload.php) to autoload the used classes
 
 Coding standards
 ---------
