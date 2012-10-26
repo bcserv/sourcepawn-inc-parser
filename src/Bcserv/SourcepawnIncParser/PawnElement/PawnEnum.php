@@ -1,6 +1,8 @@
 <?php
 namespace Bcserv\SourcepawnIncParser\PawnElement;
 
+use Bcserv\SourcepawnIncParser\PawnElement;
+
 class PawnEnum extends PawnElement
 {
     const PAWNENUM_TYPE_NORMAL = 0;
@@ -15,7 +17,7 @@ class PawnEnum extends PawnElement
     
     static function IsPawnElement($pawnParser)
     {
-        if (in_array($pawnParser->GetCurrentWord(), PawnEnum::$types)) {
+        if (in_array($pawnParser->GetCurrentWord(), self::$types)) {
             return true;
         }
 
@@ -36,7 +38,7 @@ class PawnEnum extends PawnElement
     protected function ParseType()
     {
         $word = $this->pawnParser->GetWord();
-        $pos = array_search($word, PawnEnum::$types);
+        $pos = array_search($word, self::$types);
         
         if ($pos !== false) {
             $this->type = $pos;
@@ -78,7 +80,7 @@ class PawnEnum extends PawnElement
         
         $body = trim($body);
         
-        if ($this->type == PAWNENUM_TYPE_NORMAL) {
+        if ($this->type == self::PAWNENUM_TYPE_NORMAL) {
             $lines = explode(',', $body);
         }
         else {
@@ -94,7 +96,7 @@ class PawnEnum extends PawnElement
                 continue;
             }
             
-            if ($this->type == PAWNENUM_TYPE_NORMAL) {
+            if ($this->type == self::PAWNENUM_TYPE_NORMAL) {
                 $n = $this->ParseNormalEnumLine($line, $n);
                 $n++;
             }

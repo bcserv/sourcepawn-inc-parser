@@ -1,6 +1,8 @@
 <?php
 namespace Bcserv\SourcepawnIncParser\PawnElement;
 
+use Bcserv\SourcepawnIncParser\PawnElement;
+
 class PawnComment extends PawnElement
 {
     const PAWNCOMMENT_TYPE_SINGLELINE = 0;
@@ -40,17 +42,17 @@ class PawnComment extends PawnElement
         $this->_ReadChar($pp, true);
         
         if ($this->_ReadChar($pp) == '/') {
-            $this->type = PAWNCOMMENT_TYPE_SINGLELINE;
+            $this->type = self::PAWNCOMMENT_TYPE_SINGLELINE;
         }
         else {
-            $this->type = PAWNCOMMENT_TYPE_MULTILINE;
+            $this->type = self::PAWNCOMMENT_TYPE_MULTILINE;
         }
         
         $lastChar = "";
 
         while (($char = $this->_ReadChar($pp)) !== false) {
             
-            if ($this->type == PAWNCOMMENT_TYPE_SINGLELINE && $char == "\n") {
+            if ($this->type == self::PAWNCOMMENT_TYPE_SINGLELINE && $char == "\n") {
                 break;
             }
             else if ($lastChar . $char == '*/') {

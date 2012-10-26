@@ -1,6 +1,8 @@
 <?php
 namespace Bcserv\SourcepawnIncParser\PawnElement;
 
+use Bcserv\SourcepawnIncParser\PawnElement;
+
 class PawnDefinition extends PawnElement
 {
     protected $value = '';

@@ -1,6 +1,8 @@
 <?php
 namespace Bcserv\SourcepawnIncParser\PawnElement;
 
+use Bcserv\SourcepawnIncParser\PawnElement;
+
 class PawnFunction extends PawnElement
 {
     protected $isStatic = false;
@@ -88,9 +90,9 @@ class PawnFunction extends PawnElement
                 $this->isStatic = true;
             }
             else {
-                $pos = array_search($type, PawnFunction::$keywords);
+                $pos = array_search($type, self::$keywords);
                 if ($pos !== false) {
-                    $this->types[] = PawnFunction::$keywords[$pos];
+                    $this->types[] = self::$keywords[$pos];
                 }
             }
         }

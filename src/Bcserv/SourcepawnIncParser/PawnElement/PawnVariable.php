@@ -1,6 +1,8 @@
 <?php
 namespace Bcserv\SourcepawnIncParser\PawnElement;
 
+use Bcserv\SourcepawnIncParser\PawnElement;
+
 class PawnVariable extends PawnElement
 {
     static $keywords = array(
@@ -11,7 +13,7 @@ class PawnVariable extends PawnElement
 
     static function IsPawnElement($pawnParser)
     {
-        if (in_array($pawnParser->GetCurrentWord(), PawnVariable::$keywords)) {
+        if (in_array($pawnParser->GetCurrentWord(), self::$keywords)) {
             return true;
         }
         

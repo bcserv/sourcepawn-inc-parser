@@ -1,7 +1,7 @@
 <?php
 namespace Bcserv\SourcepawnIncParser;
 
-use PawnElement;
+use Bcserv\SourcepawnIncParser\PawnElement;
 
 class PawnParser
 {
@@ -14,12 +14,12 @@ class PawnParser
     {
         $this->callback = $callback;
 
-        $this->RegisterPawnElement('PawnComment');
-        $this->RegisterPawnElement('PawnDefinition');
-        $this->RegisterPawnElement('PawnEnum');
-        $this->RegisterPawnElement('PawnFunction');
-        $this->RegisterPawnElement('PawnStruct');
-        $this->RegisterPawnElement('PawnVariable');
+        $this->RegisterPawnElement('\Bcserv\SourcepawnIncParser\PawnElement\PawnComment');
+        $this->RegisterPawnElement('\Bcserv\SourcepawnIncParser\PawnElement\PawnDefinition');
+        $this->RegisterPawnElement('\Bcserv\SourcepawnIncParser\PawnElement\PawnEnum');
+        $this->RegisterPawnElement('\Bcserv\SourcepawnIncParser\PawnElement\PawnFunction');
+        $this->RegisterPawnElement('\Bcserv\SourcepawnIncParser\PawnElement\PawnStruct');
+        $this->RegisterPawnElement('\Bcserv\SourcepawnIncParser\PawnElement\PawnVariable');
     }
 
     public function RegisterPawnElement($element)
@@ -72,9 +72,9 @@ class PawnParser
     {
         $this->char = fgetc($this->handle);
 
-        if ($parseComments && PawnComment::IsPawnElement($this)) {
+        if ($parseComments && PawnElement\PawnComment::IsPawnElement($this)) {
             $this->Jump(-1);
-            $pawnElement = new PawnComment($this);
+            $pawnElement = new PawnElement\PawnComment($this);
             $pawnElement->Parse();
             
             $callback = $this->callback;
