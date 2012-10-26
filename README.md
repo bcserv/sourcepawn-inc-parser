@@ -1,4 +1,4 @@
-sourcepawn-inc-parser
+About
 =====================
 
 A parser written in PHP which is able to analyse sourcepawn's .inc files and comments (annotation syntax)
@@ -8,10 +8,10 @@ Example
 
 ```php
 <?php
-use \Bcserv\SourcepawnIncParser;
+use Bcserv\SourcepawnIncParser\PawnParser;
 
 // if you are not using PHP's namespace autoloading mechanism you need this also:
-// require_once "path_to_library/src/PawnParser.php";
+// require_once "path_to_library/src/Bcserv/SourcepawnIncParser/PawnParser.php";
 
 function pawnParserCallback($pawnElement)
 {
@@ -21,23 +21,20 @@ function pawnParserCallback($pawnElement)
 }
 
 $pawnParser = new PawnParser(pawnParserCallback);
+$pawnParser->parseFile('clients.inc');
 
 ```
 
 Requirements
 ---------
 
-PHP >= 5.3
+* PHP >= 5.3
+* A [PHP autoloader](http://php.net/manual/de/language.oop5.autoload.php) to autoload the used namespaces
 
 Coding standards
 ---------
 
 This library follows the PHP standards [psr-0](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-0.md) and [psr-1](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-1-basic-coding-standard.md).
-
-PHP Autoloading
----------
-
-You can use [autoloading](http://php.net/manual/de/language.oop5.autoload.php), just make sure to map the namespace Bcserv\SourcepawnIncParser to the src/ folder of this repository.
 
 Using in Symfony 2
 ---------
