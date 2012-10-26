@@ -5,7 +5,10 @@
     "homepage": "https://github.com/bcserv/sourcepawn-inc-parser",
     "authors": [
         {
-            "name": "Bernhard Kaszt",
+            "name": "Bernhard Kaszt"
+        },
+        {
+            "name": "theY4Kman"
         }
     ],
     "autoload": {
