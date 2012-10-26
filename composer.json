@@ -1,0 +1,17 @@
+{
+    "name": "bcserv/sourcepawn-inc-parser",
+    "type": "library",
+    "description": "A sourcepawn parser written in PHP which is able to analyse sourcepawn's .inc files and comments (annotation syntax)",
+    "homepage": "https://github.com/bcserv/sourcepawn-inc-parser",
+    "authors": [
+        {
+            "name": "Bernhard Kaszt",
+        }
+    ],
+    "autoload": {
+        "psr-0": {
+            "Symfony": "src/"
+        }
+    },
+    "minimum-stability": "dev"
+}
