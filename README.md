@@ -10,7 +10,7 @@ Example
 <?php
 use \Bcserv\SourcepawnIncParser;
 
-// if you are not using [PHP's namespace autoloading](http://php.net/manual/de/language.oop5.autoload.php) mechanism you need this also:
+// if you are not using PHP's namespace autoloading mechanism you need this also:
 // require_once "path_to_library/src/PawnParser.php";
 
 function pawnParserCallback($pawnElement)
@@ -37,14 +37,16 @@ This library follows the PHP standards [psr-0](https://github.com/php-fig/fig-st
 PHP Autoloading
 ---------
 
-You can use autoloading, just make sure to map the namespace Bcserv\SourcepawnIncParser to the src/ folder of this repository.
+You can use [autoloading](http://php.net/manual/de/language.oop5.autoload.php), just make sure to map the namespace Bcserv\SourcepawnIncParser to the src/ folder of this repository.
 
 Using in Symfony 2
 ---------
 Add this to the require section of your composer.json in the main folder of Symfony2:
 
 ```json
-"bcserv/sourcepawn-inc-parser": "*"
+"bcserv/sourcepawn-inc-parser": "1.0.x-dev"
 ```
 
 You maybe also need to change "minimum-stability" to "dev" if it complains about this.
+
+Then run php composer.phar update
