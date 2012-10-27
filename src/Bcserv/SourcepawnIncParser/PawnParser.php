@@ -63,13 +63,14 @@ class PawnParser
                         if ($element::IsPawnElement($this)) {
                             fseek($handle, $offset);
                             $pawnElement = new $element($this);
-                            $pawnElement->Parse();
 
 							if ($this->linebreaksSinceLastComment == 1) {
 								// The last comment seems to belong to this element
 								// because there is only one linebreak in between them.
 								$pawnElement->SetComment($this->lastComment);
 							}
+
+                            $pawnElement->Parse();
 
                             $callback = $this->callback;
                             if (is_callable($callback)) {
@@ -149,7 +150,7 @@ class PawnParser
 			// Save this comment, so we can possibly connect
 			// it to the next element on the next line.
 			$this->lastComment = $pawnComment;
-			$linebreaksSinceLastComment = 0;
+			$this->linebreaksSinceLastComment = 0;
 
             //$this->Jump(-1);
             $this->char = fgetc($this->handle);
