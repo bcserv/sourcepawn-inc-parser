@@ -2,6 +2,7 @@
 namespace Bcserv\SourcepawnIncParser\PawnElement;
 
 use Bcserv\SourcepawnIncParser\PawnElement;
+use Bcserv\SourcepawnIncParser\PawnElement\PawnFunction;
 
 class PawnEnum extends PawnElement
 {
@@ -63,7 +64,7 @@ class PawnEnum extends PawnElement
         $body = "";
         $inBody = false;
 
-        while (($char = $pp->ReadChar(true, false)) !== false) {
+        while ($char = $pp->ReadChar(true, false)) {
             
             if ($char == '{') {
                 $inBody = true;
@@ -72,14 +73,19 @@ class PawnEnum extends PawnElement
             else if ($char == '}') {
                 break;
             }
-            
+			else if ($char == ')' && !$inBody) {
+				$pawnFunction = new PawnFunction($this);
+				$pawnFunction->SetIsFuncTag(true);
+				$pawnFunction->Parse();
+			}
+
             if ($inBody) {
                 $body .= $char;
             }
         }
-        
+
         $body = trim($body);
-        
+
         if ($this->type == self::PAWNENUM_TYPE_NORMAL) {
             $lines = explode(',', $body);
         }
@@ -89,7 +95,6 @@ class PawnEnum extends PawnElement
 
         $n = 0;
         foreach ($lines as $line) {
-            
             $line = trim($line);
             
             if (empty($line)) {
@@ -147,6 +152,7 @@ class PawnEnum extends PawnElement
     protected function ParseFuncEnumLine($line)
     {
         $pawnFunction = new PawnFunction($this->pawnParser);
+		$pawnFunction->SetIsFuncTag(true);
 
         $toks = explode('(', $line);
         
@@ -160,4 +166,14 @@ class PawnEnum extends PawnElement
     {
         return 'Enum (' . $this->GetName() . ')';
     }
+
+	public function getType()
+	{
+		return $this->type;
+	}
+
+	public function GetElements()
+	{
+		return $this->elements;
+	}
 }

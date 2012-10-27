@@ -9,7 +9,8 @@ abstract class PawnElement
     protected $type = -1;
     protected $line = 0;
     protected $lineEnd = 0;
-    
+	protected $comment = null;
+
     public function __construct($pawnParser)
     {
         $this->pawnParser = $pawnParser;
@@ -55,4 +56,14 @@ abstract class PawnElement
     {
         return array($this->line, $this->lineEnd);
     }
+
+	public function GetComment()
+	{
+		return $this->comment;
+	}
+
+	public function SetComment($comment)
+	{
+		$this->comment = $comment;
+	}
 }

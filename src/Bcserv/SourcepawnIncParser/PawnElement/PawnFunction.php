@@ -6,6 +6,7 @@ use Bcserv\SourcepawnIncParser\PawnElement;
 class PawnFunction extends PawnElement
 {
     protected $isStatic = false;
+	protected $isFuncTag = false;
     protected $returnType;
     protected $arguments = array();
     protected $body = '';
@@ -54,7 +55,7 @@ class PawnFunction extends PawnElement
         
         $head = "";
         
-        while (($char = $pp->ReadChar()) !== false) {
+        while ($char = $pp->ReadChar()) {
             
             if ($char == ')') {
                 break;
@@ -108,8 +109,9 @@ class PawnFunction extends PawnElement
         }
         
         $pos_space = strrpos($head, ' ');
-        if ($pos_space === false)
+        if ($pos_space === false) {
             $pos_space = 0;
+		}
 
         $head = str_replace(array("\t", "\r", "\n"), ' ', $head);
         $this->returnType = trim(substr($head, $pos_space, $pos_colon - $pos_space));
@@ -120,10 +122,12 @@ class PawnFunction extends PawnElement
         $head = str_replace(array("\t", "\r", "\n"), ' ', $head);
 
         $pos = strpos($head, ':');
-        if ($pos === false)
+        if ($pos === false) {
             $pos = strrpos($head, ' ');
-        else
+		}
+        else {
             $pos++;
+		}
 
         $this->name = trim(substr($head, $pos));
     }
@@ -265,6 +269,14 @@ class PawnFunction extends PawnElement
     {
         return $this->arguments;
     }
+
+	public function GetIsFuncTag() {
+		return $this->isFuncTag;
+	}
+
+	public function SetIsFuncTag($boolean) {
+		$this->isFuncTag = $boolean;
+	}
 
     public function GetBody()
     {
