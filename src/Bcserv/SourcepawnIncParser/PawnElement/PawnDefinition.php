@@ -22,7 +22,7 @@ class PawnDefinition extends PawnElement
         $pp->Jump(7);
         $pp->SkipWhiteSpace();
 
-        while ($char = $pp->ReadChar()) {
+        while (($char = $pp->ReadChar()) !== false) {
             
             if ($pp->IsSpace($char)) {
                 $pp->Jump(-1);

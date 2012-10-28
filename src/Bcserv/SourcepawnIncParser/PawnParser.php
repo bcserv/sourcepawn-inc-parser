@@ -87,7 +87,7 @@ class PawnParser
                 }
             }
         }
-        
+ 
         fclose($handle);
         $this->handle = false;
     }
@@ -187,7 +187,7 @@ class PawnParser
 
     public function SkipWhiteSpace()
     {
-        while ($char = $this->ReadChar()) {
+        while (($char = $this->ReadChar()) !== false) {
             
             if (!$this->IsWhiteSpace($char)) {
                 $this->Jump(-1);

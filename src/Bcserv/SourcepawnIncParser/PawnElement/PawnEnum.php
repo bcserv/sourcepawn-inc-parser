@@ -64,8 +64,8 @@ class PawnEnum extends PawnElement
         $body = "";
         $inBody = false;
 
-        while ($char = $pp->ReadChar(true, false)) {
-            
+        while (($char = $pp->ReadChar(true, false)) !== false) {
+
             if ($char == '{') {
                 $inBody = true;
                 continue;
