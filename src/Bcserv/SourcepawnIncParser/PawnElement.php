@@ -5,7 +5,7 @@ abstract class PawnElement
 {
     protected $pawnParser = false;
 
-    protected $name = 'undefined';
+    protected $name = '';
     protected $type = -1;
     protected $line = 0;
     protected $lineEnd = 0;
