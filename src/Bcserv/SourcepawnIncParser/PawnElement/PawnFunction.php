@@ -32,7 +32,7 @@ class PawnFunction extends PawnElement
             
             $n++;
             
-            if (!$pawnParser->IsValidNameChar($char, 0) && !$pawnParser->IsWhiteSpace($char) && $char != ':') {
+            if (!$pawnParser->IsValidNameChar($char, $n - 1) && !$pawnParser->IsWhiteSpace($char) && $char != ':') {
                 break;
             }
         }
