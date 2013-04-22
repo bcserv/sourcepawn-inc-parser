@@ -5,7 +5,7 @@ use Bcserv\SourcepawnIncParser\PawnElement;
 
 class PawnDefinition extends PawnElement
 {
-    protected $value = '';
+    protected $value = null;
     
     static function IsPawnElement($pawnParser)
     {
@@ -45,5 +45,10 @@ class PawnDefinition extends PawnElement
     public function __toString()
     {
         return 'Defintion (' . $this->name . ')';
+    }
+
+    public function getValue()
+    {
+        return $this->value;
     }
 }
