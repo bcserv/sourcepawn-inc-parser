@@ -188,7 +188,7 @@ class PawnFunction extends PawnElement
             }
             else {
                 $arg_info['name'] = $name;
-                $arg_info['defaultvalue'] = '';
+                $arg_info['defaultvalue'] = null;
             }
 
             $pos = strpos($arg_info['name'], '[');
