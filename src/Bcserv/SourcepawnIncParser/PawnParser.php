@@ -157,7 +157,7 @@ class PawnParser
             //$this->Jump(-1);
             $this->char = fgetc($this->handle);
 
-			return $this->char;
+			//return $this->char;
             //return false;
         }
         
