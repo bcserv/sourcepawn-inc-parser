@@ -256,7 +256,6 @@ class PawnFunction extends PawnElement
                 if ($braceLevel == 0) {
 					$braceLevel++;
                     $this->bodyLineStart = $pp->GetLine();
-					$braceLevel++;
 					continue;
 				}
 
