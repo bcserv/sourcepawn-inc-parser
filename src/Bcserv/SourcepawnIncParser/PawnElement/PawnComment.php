@@ -12,6 +12,26 @@ class PawnComment extends PawnElement
     protected $text;
     protected $raw;
 
+    public function serialize()
+    {
+      return serialize(array(
+        'tags'   => $this->tags,
+        'text'   => $this->text,
+        'raw'    => $this->raw,
+        'parent' => parent::serialize(),
+      ));
+    }
+
+    public function unserialize($data)
+    {
+      $data       = unserialize($data);
+      $this->tags = $data['tags'];
+      $this->text = $data['text'];
+      $this->raw  = $data['raw'];
+      
+      parent::unserialize($data['parent']);
+    }
+
     static function IsPawnElement($pawnParser)
     {
         if ($pawnParser->GetCurrentChar() == '/') {

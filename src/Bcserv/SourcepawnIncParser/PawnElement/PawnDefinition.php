@@ -7,6 +7,22 @@ class PawnDefinition extends PawnElement
 {
     protected $value = null;
     
+    public function serialize()
+    {
+      return serialize(array(
+        'value'  => $this->value,
+        'parent' => parent::serialize(),
+      ));
+    }
+
+    public function unserialize($data)
+    {
+      $data        = unserialize($data);
+      $this->value = $data['value'];
+      
+      parent::unserialize($data['parent']);
+    }
+
     static function IsPawnElement($pawnParser)
     {
         return ($pawnParser->GetCurrentWord() == "#define");

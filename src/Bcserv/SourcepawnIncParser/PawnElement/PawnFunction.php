@@ -23,6 +23,34 @@ class PawnFunction extends PawnElement
         'functag'
     );
 
+    public function serialize()
+    {
+      return serialize(array(
+        'arguments'     => $this->arguments,
+        'body'          => $this->body,
+        'bodyLineStart' => $this->bodyLineStart,
+        'isFuncTag'     => $this->isStatic,
+        'isStatic'      => $this->isStatic,
+        'returnType'    => $this->returnType,
+        'types'         => $this->types,
+        'parent'        => parent::serialize(),
+      ));
+    }
+
+    public function unserialize($data)
+    {
+      $data                = unserialize($data);
+      $this->arguments     = $data['arguments'];
+      $this->body          = $data['body'];
+      $this->bodyLineStart = $data['bodyLineStart'];
+      $this->isFuncTag     = $data['isFuncTag'];
+      $this->isStatic      = $data['isStatic'];
+      $this->returnType    = $data['returnType'];
+      $this->types         = $data['types'];
+      
+      parent::unserialize($data['parent']);
+    }
+
     static function IsPawnElement($pawnParser)
     {
         $word = $pawnParser->GetCurrentWord();

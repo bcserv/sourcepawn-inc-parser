@@ -16,6 +16,22 @@ class PawnEnum extends PawnElement
 
     protected $elements = array();
     
+    public function serialize()
+    {
+      return serialize(array(
+        'elements' => $this->elements,
+        'parent'   => parent::serialize(),
+      ));
+    }
+
+    public function unserialize($data)
+    {
+      $data           = unserialize($data);
+      $this->elements = $data['elements'];
+      
+      parent::unserialize($data['parent']);
+    }
+
     static function IsPawnElement($pawnParser)
     {
         if (in_array($pawnParser->GetCurrentWord(), self::$types)) {
