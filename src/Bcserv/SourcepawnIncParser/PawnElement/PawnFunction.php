@@ -29,7 +29,7 @@ class PawnFunction extends PawnElement
         'arguments'     => $this->arguments,
         'body'          => $this->body,
         'bodyLineStart' => $this->bodyLineStart,
-        'isFuncTag'     => $this->isStatic,
+        'isFuncTag'     => $this->isFuncTag,
         'isStatic'      => $this->isStatic,
         'returnType'    => $this->returnType,
         'types'         => $this->types,
@@ -121,6 +121,9 @@ class PawnFunction extends PawnElement
             if ($type == 'static') {
                 $this->isStatic = true;
             }
+            else if ($type == 'functag') {
+                $this->isFuncTag = true;
+            }
             else {
                 $pos = array_search($type, self::$keywords);
                 if ($pos !== false) {
@@ -185,6 +188,11 @@ class PawnFunction extends PawnElement
 
             $arg_info['string'] = $arg;
             
+            if (substr($arg, 0, 6) == 'const ') {
+                $arg_info['isConstant'] = true;
+                $arg = substr($arg, 6);
+            }
+            
             $parts = explode(':', $arg);
             
             if ($parts[0][0] == '&') {
@@ -199,20 +207,13 @@ class PawnFunction extends PawnElement
                 $arg_info['type'] = '';
             }
 
-			$typeToken = explode(' ', $arg_info['type']);
-
-			if (sizeof($typeToken) == 2 && $typeToken[0] == 'const') {
-				$arg_info['isConstant'] = true;
-				$arg_info['type'] = $typeToken[1];
-			}
-
             $name = $parts[sizeof($parts)-1];
 
             $pos = strpos($name, '=');
 
             if ($pos !== false) {
-                $arg_info['name'] = substr($name, 0, $pos);
-                $arg_info['defaultvalue'] = substr($name, $pos+1);
+                $arg_info['name'] = trim(substr($name, 0, $pos));
+                $arg_info['defaultvalue'] = trim(substr($name, $pos+1));
             }
             else {
                 $arg_info['name'] = $name;
