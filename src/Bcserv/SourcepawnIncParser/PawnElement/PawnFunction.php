@@ -13,15 +13,42 @@ class PawnFunction extends PawnElement
     protected $bodyLineStart = 0;
     protected $types = array();
 
-    // 'static' is not a type
+    // 'static' and 'functag' are not types
     static $keywords = array(
         'normal',
         'native',
         'public',
         'stock',
         'forward',
-        'functag'
     );
+
+    public function serialize()
+    {
+      return serialize(array(
+        'arguments'     => $this->arguments,
+        'body'          => $this->body,
+        'bodyLineStart' => $this->bodyLineStart,
+        'isFuncTag'     => $this->isFuncTag,
+        'isStatic'      => $this->isStatic,
+        'returnType'    => $this->returnType,
+        'types'         => $this->types,
+        'parent'        => parent::serialize(),
+      ));
+    }
+
+    public function unserialize($data)
+    {
+      $data                = unserialize($data);
+      $this->arguments     = $data['arguments'];
+      $this->body          = $data['body'];
+      $this->bodyLineStart = $data['bodyLineStart'];
+      $this->isFuncTag     = $data['isFuncTag'];
+      $this->isStatic      = $data['isStatic'];
+      $this->returnType    = $data['returnType'];
+      $this->types         = $data['types'];
+      
+      parent::unserialize($data['parent']);
+    }
 
     static function IsPawnElement($pawnParser)
     {
@@ -32,7 +59,7 @@ class PawnFunction extends PawnElement
             
             $n++;
             
-            if (!$pawnParser->IsValidNameChar($char, 0) && !$pawnParser->IsWhiteSpace($char) && $char != ':') {
+            if (!$pawnParser->IsValidNameChar($char, $n - 1) && !$pawnParser->IsWhiteSpace($char) && $char != ':') {
                 break;
             }
         }
@@ -57,19 +84,17 @@ class PawnFunction extends PawnElement
         
         while (($char = $pp->ReadChar()) !== false) {
 
-            if ($char === ')') {
+            if ($char === '(') {
                 break;
             }
 
             $head .= $char;
         }
 
-        $toks = explode('(', $head);
-
-        $this->ParseTypes($toks[0]);
-        $this->ParseReturnType($toks[0]);
-        $this->ParseName($toks[0]);
-        $this->ParseArguments($toks[1]);
+        $this->ParseTypes($head);
+        $this->ParseReturnType($head);
+        $this->ParseName($head);
+        $this->ParseArguments();
         $this->ParseBody();
     }
 
@@ -92,6 +117,9 @@ class PawnFunction extends PawnElement
         {
             if ($type == 'static') {
                 $this->isStatic = true;
+            }
+            else if ($type == 'functag') {
+                $this->isFuncTag = true;
             }
             else {
                 $pos = array_search($type, self::$keywords);
@@ -135,18 +163,63 @@ class PawnFunction extends PawnElement
         $this->name = trim(substr($head, $pos));
     }
 
-    public function ParseArguments($str)
+    public function ParseArguments()
     {
-        $arguments = array();
-
-        $args = explode(',', $str);
+        $pp = $this->pawnParser;
         
-        foreach ($args as $arg) {
-            
+        $arguments = array();
+        $arg = '';
+        $braceLevel = 0;
+        $inString = false;
+        $stringType = 0; // " = 1, ' = 2
+        
+        while (($char = $pp->ReadChar()) !== false) {
+
+            if ($char == '"') {
+              if ($inString) {
+                if ($stringType == 1) {
+                  $inString = false;
+                }
+              }
+              else {
+                $inString = true;
+                $stringType = 1;
+              }
+            }
+            else if ($char == '\'') {
+              if ($inString) {
+                if ($stringType == 2) {
+                  $inString = false;
+                }
+              }
+              else {
+                $inString = true;
+                $stringType = 2;
+              }
+            }
+            else if (!$inString) {
+                if ($char == '{') {
+                    $braceLevel++;
+                }
+                else if ($char == '}') {
+                    $braceLevel--;
+                }
+            }
+
+            if ($braceLevel > 0 || $inString || ($char !== ',' && $char !== ')')) {
+                $arg .= $char;
+                continue;
+            }
+
             $arg = trim($arg);
             
             if (empty($arg)) {
-                continue;
+                if ($char === ')') {
+                    break;
+                }
+                else {
+                    continue;
+                }
             }
             
             $arg_info = array(
@@ -157,38 +230,36 @@ class PawnFunction extends PawnElement
 
             $arg_info['string'] = $arg;
             
-            $parts = explode(':', $arg);
-            
-            if ($parts[0][0] == '&') {
-                $arg_info['byreference'] = true;
-                $parts[0] = substr($parts[0], 1);
+            if (substr($arg, 0, 6) == 'const ') {
+                $arg_info['isConstant'] = true;
+                $arg = substr($arg, 6);
             }
             
-            if (sizeof($parts) == 2) {
-                $arg_info['type'] = $parts[0];
+            if ($arg[0] == '&') {
+                $arg_info['byreference'] = true;
+                $arg = substr($arg, 1);
+            }
+            
+            $pos = strpos($arg, ':');
+            
+            if ($pos !== false) {
+                $arg_info['type'] = trim(substr($arg, 0, $pos));
+                $name = trim(substr($arg, $pos+1));
             }
             else {
                 $arg_info['type'] = '';
+                $name = $arg;
             }
-
-			$typeToken = explode(' ', $arg_info['type']);
-
-			if (sizeof($typeToken) == 2 && $typeToken[0] == 'const') {
-				$arg_info['isConstant'] = true;
-				$arg_info['type'] = $typeToken[1];
-			}
-
-            $name = $parts[sizeof($parts)-1];
 
             $pos = strpos($name, '=');
 
             if ($pos !== false) {
-                $arg_info['name'] = substr($name, 0, $pos);
-                $arg_info['defaultvalue'] = substr($name, $pos+1);
+                $arg_info['name'] = trim(substr($name, 0, $pos));
+                $arg_info['defaultvalue'] = trim(substr($name, $pos+1));
             }
             else {
                 $arg_info['name'] = $name;
-                $arg_info['defaultvalue'] = '';
+                $arg_info['defaultvalue'] = null;
             }
 
             $pos = strpos($arg_info['name'], '[');
@@ -199,6 +270,11 @@ class PawnFunction extends PawnElement
             }
             
             $arguments[] = $arg_info;
+            $arg = '';
+            
+            if ($char === ')') {
+                break;
+            }
         }
         
         $this->arguments = $arguments;
@@ -255,8 +331,8 @@ class PawnFunction extends PawnElement
             if ($char == '{' && !$inString) {
                 if ($braceLevel == 0) {
 					$braceLevel++;
+					$body = '';
                     $this->bodyLineStart = $pp->GetLine();
-					$braceLevel++;
 					continue;
 				}
 
@@ -279,7 +355,43 @@ class PawnFunction extends PawnElement
 
     public function __toString()
     {
-        return 'Function (' . $this->GetName() . ')';
+        $ret = implode(' ', $this->types) . ' ';
+        
+        if (!empty($this->returnType)) {
+            $ret .= $this->returnType . ':';
+        }
+        
+        $ret .= ($this->isFuncTag ? 'public' : $this->name) . '(';
+        
+        foreach($this->arguments as $i => $argument)
+        {
+            if ($i > 0) {
+                $ret .= ', ';
+            }
+            if ($argument['isConstant']) {
+                $ret .= 'const ';
+            }
+            if ($argument['byreference']) {
+                $ret .= '&';
+            }
+            if (!empty($argument['type'])) {
+                $ret .= $argument['type'] . ':';
+            }
+            
+            $ret .= $argument['name'] . $argument['dimensions'];
+            
+            if (!is_null($argument['defaultvalue'])) {
+                $ret .= ' = ' . $argument['defaultvalue'];
+            }
+        }
+        
+        $ret .= ')';
+        
+        if (!empty($this->body)) {
+            $ret .= "\n{" . $this->body . '}';
+        }
+        
+        return trim($ret);
     }
 
     public function GetArguments()

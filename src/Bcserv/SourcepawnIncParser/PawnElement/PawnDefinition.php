@@ -5,8 +5,24 @@ use Bcserv\SourcepawnIncParser\PawnElement;
 
 class PawnDefinition extends PawnElement
 {
-    protected $value = '';
+    protected $value = null;
     
+    public function serialize()
+    {
+      return serialize(array(
+        'value'  => $this->value,
+        'parent' => parent::serialize(),
+      ));
+    }
+
+    public function unserialize($data)
+    {
+      $data        = unserialize($data);
+      $this->value = $data['value'];
+      
+      parent::unserialize($data['parent']);
+    }
+
     static function IsPawnElement($pawnParser)
     {
         return ($pawnParser->GetCurrentWord() == "#define");
@@ -44,6 +60,17 @@ class PawnDefinition extends PawnElement
 
     public function __toString()
     {
-        return 'Defintion (' . $this->name . ')';
+        $ret = '#define ' . $this->name;
+        
+        if (!empty($this->value)) {
+            $ret .= ' ' . $this->value;
+        }
+        
+        return $ret;
+    }
+
+    public function getValue()
+    {
+        return $this->value;
     }
 }

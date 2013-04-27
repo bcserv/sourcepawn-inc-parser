@@ -8,8 +8,29 @@ class PawnComment extends PawnElement
     const PAWNCOMMENT_TYPE_SINGLELINE = 0;
     const PAWNCOMMENT_TYPE_MULTILINE  = 1;
 
+    protected $tags = array();
     protected $text;
     protected $raw;
+
+    public function serialize()
+    {
+      return serialize(array(
+        'tags'   => $this->tags,
+        'text'   => $this->text,
+        'raw'    => $this->raw,
+        'parent' => parent::serialize(),
+      ));
+    }
+
+    public function unserialize($data)
+    {
+      $data       = unserialize($data);
+      $this->tags = $data['tags'];
+      $this->text = $data['text'];
+      $this->raw  = $data['raw'];
+      
+      parent::unserialize($data['parent']);
+    }
 
     static function IsPawnElement($pawnParser)
     {
@@ -66,6 +87,48 @@ class PawnComment extends PawnElement
         }
         
         $this->lineEnd = $pp->GetLine();
+        
+        // Parse tags for multi-line comments
+        if ($this->type == self::PAWNCOMMENT_TYPE_MULTILINE) {
+            $this->ParseTags();
+        }
+    }
+
+    protected function ParseTags()
+    {
+        $this->text = trim(preg_replace('/^\s*\**( |\t)?/m', '', $this->text));
+        if (!preg_match('/^\s*@\w+/m', $this->text, $matches, PREG_OFFSET_CAPTURE))
+            return;
+        
+        $meta = substr($this->text, $matches[0][1]);
+        $this->text = trim(substr($this->text, 0, $matches[0][1]));
+        
+        $tags = preg_split('/^\s*@/m', $meta, -1, PREG_SPLIT_NO_EMPTY);
+        foreach ($tags as $tag) {
+            $segs = preg_split('/\s+/', trim($tag), 2);
+            $tagName = $segs[0];
+            $param = isset($segs[1]) ? trim($segs[1]) : '';
+            
+            // Additional parsing for "param" tag
+            if ($tagName == 'param') {
+                if (!isset($this->tags[$tagName])) {
+                    $this->tags[$tagName] = array();
+                }
+                
+                $segs = preg_split('/\s+/', $param, 2);
+                $this->tags[$tagName][$segs[0]] = $segs[1];
+            }
+            else if (isset($this->tags[$tagName])) {
+                if (!is_array($this->tags[$tagName])) {
+                    $this->tags[$tagName] = (array)$this->tags[$tagName];
+                }
+                
+                $this->tags[$tagName][] = $param;
+            }
+            else {
+                $this->tags[$tagName] = $param;
+            }
+        }
     }
 
     public function __toString()
@@ -81,5 +144,10 @@ class PawnComment extends PawnElement
     public function GetRaw()
     {
         return $this->raw;
+    }
+
+    public function GetTags()
+    {
+        return $this->tags;
     }
 }

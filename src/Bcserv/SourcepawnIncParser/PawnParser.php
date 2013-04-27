@@ -56,6 +56,8 @@ class PawnParser
                         // Not handled macro, skip this line
                         fgets($handle);
                         $this->lineNumber++;
+                        
+                        break;
                     }
 
                     foreach ($this->elements as $element) {
@@ -155,7 +157,7 @@ class PawnParser
             //$this->Jump(-1);
             $this->char = fgetc($this->handle);
 
-			return $this->char;
+			//return $this->char;
             //return false;
         }
         

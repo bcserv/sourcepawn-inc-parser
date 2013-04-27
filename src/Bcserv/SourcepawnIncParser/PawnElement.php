@@ -1,7 +1,7 @@
 <?php
 namespace Bcserv\SourcepawnIncParser;
 
-abstract class PawnElement
+abstract class PawnElement implements \Serializable
 {
     protected $pawnParser = false;
 
@@ -14,6 +14,27 @@ abstract class PawnElement
     public function __construct($pawnParser)
     {
         $this->pawnParser = $pawnParser;
+    }
+    
+    public function serialize()
+    {
+      return serialize(array(
+        'comment' => $this->comment,
+        'line'    => $this->line,
+        'lineEnd' => $this->lineEnd,
+        'name'    => $this->name,
+        'type'    => $this->type,
+      ));
+    }
+    
+    public function unserialize($data)
+    {
+      $data          = unserialize($data);
+      $this->comment = $data['comment'];
+      $this->line    = $data['line'];
+      $this->lineEnd = $data['lineEnd'];
+      $this->name    = $data['name'];
+      $this->type    = $data['type'];
     }
     
     static function IsPawnElement($pawnParser)
