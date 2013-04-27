@@ -175,73 +175,6 @@ class PawnFunction extends PawnElement
         
         while (($char = $pp->ReadChar()) !== false) {
 
-            if ($braceLevel == 0 && !$inString && ($char === ',' || $char === ')')) {
-                $arg = trim($arg);
-                
-                if (empty($arg)) {
-                    continue;
-                }
-                
-                $arg_info = array(
-				'byreference'	=> false,
-				'isConstant'	=> false,
-				'dimensions'	=> ''
-			);
-
-                $arg_info['string'] = $arg;
-                
-                if (substr($arg, 0, 6) == 'const ') {
-                    $arg_info['isConstant'] = true;
-                    $arg = substr($arg, 6);
-                }
-                
-                if ($arg[0] == '&') {
-                    $arg_info['byreference'] = true;
-                    $arg = substr($arg, 1);
-                }
-                
-                $pos = strpos($arg, ':');
-                
-                if ($pos !== false) {
-                    $arg_info['type'] = trim(substr($arg, 0, $pos));
-                    $name = trim(substr($arg, $pos+1));
-                }
-                else {
-                    $arg_info['type'] = '';
-                    $name = $arg;
-                }
-    
-                $pos = strpos($name, '=');
-    
-                if ($pos !== false) {
-                    $arg_info['name'] = trim(substr($name, 0, $pos));
-                    $arg_info['defaultvalue'] = trim(substr($name, $pos+1));
-                }
-                else {
-                    $arg_info['name'] = $name;
-                    $arg_info['defaultvalue'] = null;
-                }
-    
-                $pos = strpos($arg_info['name'], '[');
-                
-                if ($pos !== false) {
-                    $arg_info['dimensions'] = substr($arg_info['name'], $pos);
-                    $arg_info['name'] = substr($arg_info['name'], 0, $pos);
-                }
-                
-                $arguments[] = $arg_info;
-                $arg = '';
-                
-                if ($char === ')') {
-                    $this->arguments = $arguments;
-                    break;
-                }
-                
-                continue;
-            }
-
-            $arg .= $char;
-
             if ($char == '"') {
               if ($inString) {
                 if ($stringType == 1) {
@@ -264,16 +197,87 @@ class PawnFunction extends PawnElement
                 $stringType = 2;
               }
             }
-            else if(!$inString) {
+            else if (!$inString) {
                 if ($char == '{') {
                     $braceLevel++;
                 }
-                else if($char == '}')
-                {
+                else if ($char == '}') {
                     $braceLevel--;
                 }
             }
+
+            if ($braceLevel > 0 || $inString || ($char !== ',' && $char !== ')')) {
+                $arg .= $char;
+                continue;
+            }
+
+            $arg = trim($arg);
+            
+            if (empty($arg)) {
+                if ($char === ')') {
+                    break;
+                }
+                else {
+                    continue;
+                }
+            }
+            
+            $arg_info = array(
+				'byreference'	=> false,
+				'isConstant'	=> false,
+				'dimensions'	=> ''
+			);
+
+            $arg_info['string'] = $arg;
+            
+            if (substr($arg, 0, 6) == 'const ') {
+                $arg_info['isConstant'] = true;
+                $arg = substr($arg, 6);
+            }
+            
+            if ($arg[0] == '&') {
+                $arg_info['byreference'] = true;
+                $arg = substr($arg, 1);
+            }
+            
+            $pos = strpos($arg, ':');
+            
+            if ($pos !== false) {
+                $arg_info['type'] = trim(substr($arg, 0, $pos));
+                $name = trim(substr($arg, $pos+1));
+            }
+            else {
+                $arg_info['type'] = '';
+                $name = $arg;
+            }
+
+            $pos = strpos($name, '=');
+
+            if ($pos !== false) {
+                $arg_info['name'] = trim(substr($name, 0, $pos));
+                $arg_info['defaultvalue'] = trim(substr($name, $pos+1));
+            }
+            else {
+                $arg_info['name'] = $name;
+                $arg_info['defaultvalue'] = null;
+            }
+
+            $pos = strpos($arg_info['name'], '[');
+            
+            if ($pos !== false) {
+                $arg_info['dimensions'] = substr($arg_info['name'], $pos);
+                $arg_info['name'] = substr($arg_info['name'], 0, $pos);
+            }
+            
+            $arguments[] = $arg_info;
+            $arg = '';
+            
+            if ($char === ')') {
+                break;
+            }
         }
+        
+        $this->arguments = $arguments;
     }
 
     protected function ParseBody()
@@ -327,6 +331,7 @@ class PawnFunction extends PawnElement
             if ($char == '{' && !$inString) {
                 if ($braceLevel == 0) {
 					$braceLevel++;
+					$body = '';
                     $this->bodyLineStart = $pp->GetLine();
 					continue;
 				}
