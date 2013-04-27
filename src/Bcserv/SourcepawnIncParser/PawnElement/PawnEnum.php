@@ -77,7 +77,8 @@ class PawnEnum extends PawnElement
     {
         $pp = $this->pawnParser;
 
-        $body = "";
+        $n = 0;
+        $line = "";
         $inBody = false;
 
         while (($char = $pp->ReadChar(true, false)) !== false) {
@@ -86,58 +87,49 @@ class PawnEnum extends PawnElement
                 $inBody = true;
                 continue;
             }
-            else if ($char == '}') {
-                break;
-            }
 			else if ($char == ')' && !$inBody) {
-				$pawnFunction = new PawnFunction($this);
+				$pawnFunction = new PawnFunction($pp);
 				$pawnFunction->SetIsFuncTag(true);
 				$pawnFunction->Parse();
 			}
-
-            if ($inBody) {
-                $body .= $char;
+            else if ($inBody) {
+                if ($char == '(' && $this->type == self::PAWNENUM_TYPE_FUNC) {
+                    $this->ParseFuncEnumLine($line);
+                    $line = '';
+                    continue;
+                }
+                if ($char == ',' || $char == '}') {
+                    if ($this->type == self::PAWNENUM_TYPE_NORMAL) {
+                      $this->ParseNormalEnumLine($line, $n);
+                      $n++;
+                      $line = '';
+                    }
+                    if ($char == '}') {
+                        break;
+                    }
+                  
+                  continue;
+                }
+                
+                $line .= $char;
             }
         }
 
-        $body = trim($body);
-
-        if ($this->type == self::PAWNENUM_TYPE_NORMAL) {
-            $lines = explode(',', $body);
-        }
-        else {
-            $lines = explode('),', $body);
-        }
-
-        $n = 0;
-        foreach ($lines as $line) {
-            $line = trim($line);
-            
-            if (empty($line)) {
-                continue;
-            }
-            
-            if ($this->type == self::PAWNENUM_TYPE_NORMAL) {
-                $n = $this->ParseNormalEnumLine($line, $n);
-                $n++;
-            }
-            else {
-                $this->ParseFuncEnumLine($line);
-            }
-        }
-        
-        $this->body = $body;
         $this->lineEnd = $pp->GetLine();
     }
 
-    protected function ParseNormalEnumLine($line, $n)
+    protected function ParseNormalEnumLine($line, &$n)
     {
+        $line = trim($line);
+        if(empty($line))
+            return;
+        
         $element = array();
             
         $pos = strpos($line, '=');
         
         if ($pos !== false) {
-            $first = substr($line, 0, $pos);
+            $first = trim(substr($line, 0, $pos));
             $element['value'] = trim(substr($line, $pos+1));
 
             if (is_numeric($element['value'])) {
@@ -152,8 +144,8 @@ class PawnEnum extends PawnElement
         $pos = strpos($first, ':');
         
         if ($pos !== false) {
-            $element['type'] = substr($first, 0, $pos);
-            $element['name'] = substr($first, $pos);
+            $element['type'] = trim(substr($first, 0, $pos));
+            $element['name'] = trim(substr($first, $pos+1));
         }
         else {
             $element['type'] = '';
@@ -165,21 +157,24 @@ class PawnEnum extends PawnElement
         return $n;
     }
 
-    protected function ParseFuncEnumLine($line)
+    protected function ParseFuncEnumLine($head)
     {
+        $head = trim($head);
+        if(empty($head))
+            return;
+        
         $pawnFunction = new PawnFunction($this->pawnParser);
 		$pawnFunction->SetIsFuncTag(true);
-
-        $toks = explode('(', $line);
         
-        $pawnFunction->ParseReturnType($toks[0]);
-        $pawnFunction->ParseArguments($toks[1]);
+        $pawnFunction->ParseReturnType($head);
+        $pawnFunction->ParseArguments();
         
         $this->elements[] = $pawnFunction;
     }
 
     public function __toString()
     {
+        $value = -1;
         $ret = $this->type == self::PAWNENUM_TYPE_FUNC ? 'funcenum' : 'enum';
         
         if (!empty($this->name)) {
@@ -199,7 +194,14 @@ class PawnEnum extends PawnElement
                     $ret .= $element['type'] . ':';
                 }
                 
-                $ret .= $element['name'] . ' = ' . $element['value'] . ',';
+                $ret .= $element['name'];
+                
+                if ($element['value'] !== $value + 1) {
+                    $ret .= ' = ' . $element['value'];
+                }
+                
+                $ret .= ',';
+                $value = $element['value'];
             }
         }
         
