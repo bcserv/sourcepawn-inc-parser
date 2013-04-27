@@ -60,7 +60,13 @@ class PawnDefinition extends PawnElement
 
     public function __toString()
     {
-        return 'Defintion (' . $this->name . ')';
+        $ret = '#define ' . $this->name;
+        
+        if (!empty($this->value)) {
+            $ret .= ' ' . $this->value;
+        }
+        
+        return $ret;
     }
 
     public function getValue()

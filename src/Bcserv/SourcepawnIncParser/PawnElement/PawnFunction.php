@@ -355,7 +355,43 @@ class PawnFunction extends PawnElement
 
     public function __toString()
     {
-        return 'Function (' . $this->GetName() . ')';
+        $ret = implode(' ', $this->types) . ' ';
+        
+        if (!empty($this->returnType)) {
+            $ret .= $this->returnType . ':';
+        }
+        
+        $ret .= ($this->isFuncTag ? 'public' : $this->name) . '(';
+        
+        foreach($this->arguments as $i => $argument)
+        {
+            if ($i > 0) {
+                $ret .= ', ';
+            }
+            if ($argument['isConstant']) {
+                $ret .= 'const ';
+            }
+            if ($argument['byreference']) {
+                $ret .= '&';
+            }
+            if (!empty($argument['type'])) {
+                $ret .= $argument['type'] . ':';
+            }
+            
+            $ret .= $argument['name'] . $argument['dimensions'];
+            
+            if (!is_null($argument['defaultvalue'])) {
+                $ret .= ' = ' . $argument['defaultvalue'];
+            }
+        }
+        
+        $ret .= ')';
+        
+        if (!empty($this->body)) {
+            $ret .= "\n{" . $this->body . '}';
+        }
+        
+        return trim($ret);
     }
 
     public function GetArguments()

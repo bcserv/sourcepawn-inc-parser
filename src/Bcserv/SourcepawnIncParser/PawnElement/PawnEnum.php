@@ -180,7 +180,32 @@ class PawnEnum extends PawnElement
 
     public function __toString()
     {
-        return 'Enum (' . $this->GetName() . ')';
+        $ret = $this->type == self::PAWNENUM_TYPE_FUNC ? 'funcenum' : 'enum';
+        
+        if (!empty($this->name)) {
+            $ret .= ' ' . $this->name;
+        }
+        
+        $ret .= "\n{";
+        
+        foreach ($this->elements as $element) {
+            $ret .= "\n\t";
+            
+            if ($this->type == self::PAWNENUM_TYPE_FUNC) {
+                $ret .= $element . ',';
+            }
+            else {
+                if (!empty($element['type'])) {
+                    $ret .= $element['type'] . ':';
+                }
+                
+                $ret .= $element['name'] . ' = ' . $element['value'] . ',';
+            }
+        }
+        
+        $ret .= "\n}";
+        
+        return $ret;
     }
 
 	public function getType()
