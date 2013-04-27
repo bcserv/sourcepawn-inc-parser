@@ -13,14 +13,13 @@ class PawnFunction extends PawnElement
     protected $bodyLineStart = 0;
     protected $types = array();
 
-    // 'static' is not a type
+    // 'static' and 'functag' are not types
     static $keywords = array(
         'normal',
         'native',
         'public',
         'stock',
         'forward',
-        'functag'
     );
 
     public function serialize()
@@ -85,19 +84,17 @@ class PawnFunction extends PawnElement
         
         while (($char = $pp->ReadChar()) !== false) {
 
-            if ($char === ')') {
+            if ($char === '(') {
                 break;
             }
 
             $head .= $char;
         }
 
-        $toks = explode('(', $head);
-
-        $this->ParseTypes($toks[0]);
-        $this->ParseReturnType($toks[0]);
-        $this->ParseName($toks[0]);
-        $this->ParseArguments($toks[1]);
+        $this->ParseTypes($head);
+        $this->ParseReturnType($head);
+        $this->ParseName($head);
+        $this->ParseArguments();
         $this->ParseBody();
     }
 
@@ -166,71 +163,117 @@ class PawnFunction extends PawnElement
         $this->name = trim(substr($head, $pos));
     }
 
-    public function ParseArguments($str)
+    public function ParseArguments()
     {
-        $arguments = array();
-
-        $args = explode(',', $str);
+        $pp = $this->pawnParser;
         
-        foreach ($args as $arg) {
-            
-            $arg = trim($arg);
-            
-            if (empty($arg)) {
-                continue;
-            }
-            
-            $arg_info = array(
+        $arguments = array();
+        $arg = '';
+        $braceLevel = 0;
+        $inString = false;
+        $stringType = 0; // " = 1, ' = 2
+        
+        while (($char = $pp->ReadChar()) !== false) {
+
+            if ($braceLevel == 0 && !$inString && ($char === ',' || $char === ')')) {
+                $arg = trim($arg);
+                
+                if (empty($arg)) {
+                    continue;
+                }
+                
+                $arg_info = array(
 				'byreference'	=> false,
 				'isConstant'	=> false,
 				'dimensions'	=> ''
 			);
 
-            $arg_info['string'] = $arg;
-            
-            if (substr($arg, 0, 6) == 'const ') {
-                $arg_info['isConstant'] = true;
-                $arg = substr($arg, 6);
-            }
-            
-            $parts = explode(':', $arg);
-            
-            if ($parts[0][0] == '&') {
-                $arg_info['byreference'] = true;
-                $parts[0] = substr($parts[0], 1);
-            }
-            
-            if (sizeof($parts) == 2) {
-                $arg_info['type'] = $parts[0];
-            }
-            else {
-                $arg_info['type'] = '';
+                $arg_info['string'] = $arg;
+                
+                if (substr($arg, 0, 6) == 'const ') {
+                    $arg_info['isConstant'] = true;
+                    $arg = substr($arg, 6);
+                }
+                
+                if ($arg[0] == '&') {
+                    $arg_info['byreference'] = true;
+                    $arg = substr($arg, 1);
+                }
+                
+                $pos = strpos($arg, ':');
+                
+                if ($pos !== false) {
+                    $arg_info['type'] = trim(substr($arg, 0, $pos));
+                    $name = trim(substr($arg, $pos+1));
+                }
+                else {
+                    $arg_info['type'] = '';
+                    $name = $arg;
+                }
+    
+                $pos = strpos($name, '=');
+    
+                if ($pos !== false) {
+                    $arg_info['name'] = trim(substr($name, 0, $pos));
+                    $arg_info['defaultvalue'] = trim(substr($name, $pos+1));
+                }
+                else {
+                    $arg_info['name'] = $name;
+                    $arg_info['defaultvalue'] = null;
+                }
+    
+                $pos = strpos($arg_info['name'], '[');
+                
+                if ($pos !== false) {
+                    $arg_info['dimensions'] = substr($arg_info['name'], $pos);
+                    $arg_info['name'] = substr($arg_info['name'], 0, $pos);
+                }
+                
+                $arguments[] = $arg_info;
+                $arg = '';
+                
+                if ($char === ')') {
+                    $this->arguments = $arguments;
+                    break;
+                }
+                
+                continue;
             }
 
-            $name = $parts[sizeof($parts)-1];
+            $arg .= $char;
 
-            $pos = strpos($name, '=');
-
-            if ($pos !== false) {
-                $arg_info['name'] = trim(substr($name, 0, $pos));
-                $arg_info['defaultvalue'] = trim(substr($name, $pos+1));
+            if ($char == '"') {
+              if ($inString) {
+                if ($stringType == 1) {
+                  $inString = false;
+                }
+              }
+              else {
+                $inString = true;
+                $stringType = 1;
+              }
             }
-            else {
-                $arg_info['name'] = $name;
-                $arg_info['defaultvalue'] = null;
+            else if ($char == '\'') {
+              if ($inString) {
+                if ($stringType == 2) {
+                  $inString = false;
+                }
+              }
+              else {
+                $inString = true;
+                $stringType = 2;
+              }
             }
-
-            $pos = strpos($arg_info['name'], '[');
-            
-            if ($pos !== false) {
-                $arg_info['dimensions'] = substr($arg_info['name'], $pos);
-                $arg_info['name'] = substr($arg_info['name'], 0, $pos);
+            else if(!$inString) {
+                if ($char == '{') {
+                    $braceLevel++;
+                }
+                else if($char == '}')
+                {
+                    $braceLevel--;
+                }
             }
-            
-            $arguments[] = $arg_info;
         }
-        
-        $this->arguments = $arguments;
     }
 
     protected function ParseBody()
