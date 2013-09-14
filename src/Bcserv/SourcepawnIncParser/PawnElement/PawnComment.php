@@ -116,7 +116,12 @@ class PawnComment extends PawnElement
                 }
                 
                 $segs = preg_split('/\s+/', $param, 2);
-                $this->tags[$tagName][$segs[0]] = $segs[1];
+
+                if (sizeof($segs) === 2) {
+                    $this->tags[$tagName][$segs[0]] = $segs[1];
+                } else {
+                    $this->tags[$tagName][$segs[0]] = "";
+                }
             }
             else if (isset($this->tags[$tagName])) {
                 if (!is_array($this->tags[$tagName])) {
