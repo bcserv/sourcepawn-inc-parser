@@ -387,10 +387,17 @@ class PawnFunction extends PawnElement
         
         $ret .= ')';
         
+        return trim($ret);
+    }
+
+    public function getFullDefinition()
+    {
+        $ret = $this; // __toSTring()
+
         if (!empty($this->body)) {
             $ret .= "\n{" . $this->body . '}';
         }
-        
+
         return trim($ret);
     }
 
